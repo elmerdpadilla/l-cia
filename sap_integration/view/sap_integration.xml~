@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+		<record id="sap_integration_action_form_log" model="ir.actions.act_window">
+				<field name="name">Logs</field>
+				<field name="res_model">sap_integration.log</field>
+				<field name="view_type">form</field>
+				<field name="view_mode">tree,form</field>
+				<field name="domain">[]</field>
+				<field name="context">{}</field>
+				<field name="view_id" eval="False"/>            
+				<field name="help" type="html">
+				  <p class="oe_view_nocontent_create">
+					Click to add a new Log.
+				  </p>
+				  <p>
+					With just a quick glance on the OpenERP log screen, you
+					can easily find all the information about your each day log;					
+				  </p>
+				</field>
+		</record>
+        <record id="sap_integration_log_tree_view" model="ir.ui.view">
+            <field name="name">sap.integration.log.tree</field>
+            <field name="model">sap_integration.log</field>
+            <field name="arch" type="xml">
+<tree>
+<field name="create_date"/>
+<field name="log"/>
+<field name= "description" />
+</tree>
+            </field>
+        </record>
+
+        <record id="sap_integration_log_form_view" model="ir.ui.view">
+            <field name="name">sap.integration.log.form</field>
+            <field name="model">sap_integration.log</field>
+            <field name="arch" type="xml">
+<form>
+<sheet>
+<group>
+<field name="log"/>
+<field name= "description" />
+</group>
+</sheet>
+</form>
+            </field>
+        </record>
+
+        <record id="sap_integration_product_pricelist_discount_form_view" model="ir.ui.view">
+            <field name="name">sap.integration.product.pricelist.discount.form</field>
+            <field name="model">product.pricelist.discount</field>
+            <field name="arch" type="xml">
+<form>
+<sheet>
+<group colspan="4">
+<field name= "pricelist_version_id" readonly="True" />
+</group>
+<group>
+<field name= "sequence" />
+<field name="amount"/>
+
+
+</group>
+<group >
+
+<field name= "discount" />
+</group>
+
+
+
+</sheet>
+</form>
+            </field>
+        </record>
+
+
+
+
+<menuitem id="setting_menu" name="Setting Sap" parent="base.menu_base_partner" />
+<menuitem action="sap_integration_action_form_log" parent="setting_menu"  id="log_edit"/>
+
+<record model="ir.ui.view" id="view_sap_integration_partner_form">
+    <field name="name">sap.integration.res.partner.form</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+		<notebook position="inside">
+
+ <page string="SAP info">
+<sheet>
+		<group>
+		<field name="sap_id" />
+		<field name="discount" />
+		</group>
+</sheet>
+</page>
+</notebook>
+    </field>
+</record>
+
+
+<record model="ir.ui.view" id="view_sap_integration_product_template_form">
+    <field name="name">sap.integration.product_template.only_form_view</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_only_form_view"/>
+    <field name="arch" type="xml">
+		<notebook position="inside">
+ <page string="SAP info" colspan="4">
+		<group>
+		<field name="item_code" />
+		<field name="supplier_cat_num" />
+		<field name="property_product_maker" />
+		</group>
+</page>
+</notebook>
+    </field>
+</record>
+
+<record model="ir.ui.view" id="view_sap_integration_product_pricelist_form">
+    <field name="name">sap.integration.product_pricelist.only_form_view</field>
+    <field name="model">product.pricelist</field>
+    <field name="inherit_id" ref="product.product_pricelist_view"/>
+    <field name="arch" type="xml">
+<field name="currency_id" position="replace">
+<field name="currency_id" invisible="True" groups="base.group_multi_currency"/>
+</field>
+
+
+<field name="version_id" position="replace">
+<field name="version_id" >
+                        <tree string="Pricelist Version">
+                            <field name="name"/>
+                            <field name="active"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                        </tree>
+</field>
+</field>
+
+
+    </field>
+</record>
+
+<record model="ir.ui.view" id="view_sap_integration_product_pricelist_version_form">
+    <field name="name">product.pricelist.version.form</field>
+    <field name="model">product.pricelist.version</field>
+    <field name="inherit_id" ref="product.product_pricelist_version_form_view"/>
+    <field name="arch" type="xml">
+
+<field name="pricelist_id" position="after">
+<field name="product_id"/>
+<field name="price"/>
+<field name="currency_id"/>
+
+</field>
+<field name="items_id" position="replace">
+
+<field name="product_pricelist_discount_ids">
+<tree>
+<field name= "sequence" />
+<field name="amount"/>
+<field name= "discount" />
+
+</tree>
+</field>
+</field>
+    </field>
+</record>
+
+
+
+    </data>
+</openerp>
