@@ -10,6 +10,6 @@
 		'report/reporte1.xml' ,
 		'views/reports_reports.xml'
 	],
-	'depends': ['base','sale'],
+	'depends': ['base','sale','sap_integration'],
     	'installable': True,
 }

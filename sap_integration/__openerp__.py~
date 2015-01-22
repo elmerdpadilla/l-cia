@@ -11,6 +11,6 @@
 	],
 	'update_xml' : [
 	],
-	'depends': ['base','hr','account','sale'],
+	'depends': ['base','hr','account'],
     	'installable': True,
 }

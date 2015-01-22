@@ -37,6 +37,14 @@ table.box {
     border: 1px solid black;
      text-align: center;
 }
+table.box td{
+    width: 100%;
+     text-align: center;
+   padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+}
 
 </style>
 
@@ -50,7 +58,7 @@ table.box {
 <span t-field="company.name"/>  <span t-field="o.warehouse_id.name"/>
 </strong>
 </td>
-<td rowspan="4" style="width:30%">
+<td rowspan="4" style="width:30%" >
               <div class="row">
             <div class="col-xs-3">
                 <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % company.logo" style="height: 80px;"/>
@@ -94,7 +102,8 @@ table.box {
     padding-right: 50px;
     padding-bottom: 25px;
     padding-left: 50px;
-    margin:1px;
+    margin-top:1px;
+    margin-bottom:10px;
 }
 table.bvx {
     width: 100%;
@@ -103,7 +112,16 @@ table.bvx {
     padding-right: 25px;
     padding-bottom: 25px;
     padding-left: 25px;
-    margin:1px;
+    margin-top:1px;
+    margin-bottom:10px;
+}
+table.bvx td{
+
+   padding-top: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-left: 2px;
+
 }
 table.box td{
     width: 10%;
@@ -112,9 +130,24 @@ table.box td{
 table.shadow {
 	background-color: #B2B2B2;
 	width: 100%;
-	border: 2px solid black;
+	border: 1px solid black;
 	text-align: left;
 	padding: 80px;
+    margin-top:1px;
+    margin-bottom:0px;
+}
+table.shadow td{
+	text-align: left;
+   padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+}
+table.ba{
+
+	width: 100%;
+    margin-top:0px;
+    margin-bottom:1px;
 }
 table.ba tr {
 
@@ -123,11 +156,12 @@ table.ba tr {
  border-bottom-width: 1px;
   border-style: solid;
 	text-align: left;
-	padding: 80px;
+    padding-top: 1px;
+    padding-right: 80px;
+    padding-bottom: 1px;
+    padding-left: 80px;
 }
-table.ba tr{
-	     text-align: left;
-}
+
 td.right{
 	     text-align: right;
     padding-top: 1px;
@@ -144,13 +178,14 @@ td.left{
 }
 td.center{
 	     text-align: center;
-    padding-top: 10px;
+    padding-top: 1px;
     padding-right: 10px;
-    padding-bottom: 10px;
+    padding-bottom: 1px;
     padding-left: 10px;
 }
-
 </style>
+
+
 <table class="box">
 <tbody>
 <tr>
@@ -163,31 +198,31 @@ td.center{
 </tr>
 </tbody>
 </table>
-<br/>
+
 <table class="shadow">
 <tbody>
 <tr>
 <td style="width:10%">CÓDIGO</td>
-<td style="width:43%">DESCRIPCIÓN</td>
+<td style="width:40%">DESCRIPCIÓN</td>
 <td style="width:10%">CANTIDAD</td>
 <td style="width:7%">UNIDAD</td>
-<td style="width:10%">PRECIO</td>
+<td style="width:13%">PRECIO</td>
 <td style="width:10%">CONDICION</td>
 <td style="width:10%">EXTENSION</td>
 </tr>
 </tbody>
 </table>
-<br/>
+
 <table class="ba">
 <tbody>
 
 <t t-foreach="o.order_line" t-as="a">
 <tr>
 <td style="width:10%"><span t-field="a.product_id.item_code"/></td>
-<td style="width:43%"><span t-field="a.name"/></td>
+<td style="width:40%"><span t-field="a.name"/></td>
 <td style="width:10%"><span t-field="a.product_uom_qty"/></td>
 <td style="width:7%"><span t-field="a.product_uom"/></td>
-<td style="width:10%" class="right"><span t-field="a.price_unit"/></td>
+<td style="width:13%" class="right"><span t-field="a.price_unit"/></td>
 <td style="width:10%" class="center" >E</td>
 <td style="width:10%" class="right"><span t-field="a.price_subtotal"/></td>
 </tr>
