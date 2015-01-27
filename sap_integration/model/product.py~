@@ -10,7 +10,7 @@ class product_template(osv.osv):
 
     _columns = {
 		'sap_id': fields.char('sap_id'),
-		'item_code': fields.char('Item Code',select=True),
+		'item_code': fields.char('Item Code',select=1),
 		'supplier_cat_num': fields.char('Supplier Catalog Num'),
 		'property_product_maker': fields.property(
 			type='many2one',
