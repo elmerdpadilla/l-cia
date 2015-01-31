@@ -6,9 +6,98 @@ from openerp.tools.translate import _
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
 import openerp.addons.decimal_precision as dp
 from openerp import workflow
+class sap_order(osv.osv):
+    _inherit = 'sale.order'
+    def _amount_line_tax(self, cr, uid, line, context=None):
+        val = 0.0
+        for c in self.pool.get('account.tax').compute_all(cr, uid, line.tax_id, line.price_unit * (1-(line.discount or 0.0)/100.0)* (1-(line.max or 0.0)/100.0), line.product_uom_qty, line.product_id, line.order_id.partner_id)['taxes']:
+            val += c.get('amount', 0.0)
+        return val
+    def _amount_all(self, cr, uid, ids, field_name, arg, context=None):
+        cur_obj = self.pool.get('res.currency')
+        res = {}
+        for order in self.browse(cr, uid, ids, context=context):
+            res[order.id] = {
+                'amount_untaxed': 0.0,
+                'amount_tax': 0.0,
+                'amount_total': 0.0,
+		'amount_discount':0.0,
+            }
+            val = val1 = val2= 0.0
+            cur = order.pricelist_id.currency_id
+            for line in order.order_line:
+                val1 += line.price_subtotal
+                val += self._amount_line_tax(cr, uid, line, context=context)
+		val2 += line.price_subtotal*line.max/100
+		
+            res[order.id]['amount_tax'] = cur_obj.round(cr, uid, cur, val)
+            res[order.id]['amount_untaxed'] = cur_obj.round(cr, uid, cur, val1)
+	    res[order.id]['amount_discount'] = cur_obj.round(cr, uid, cur, val2)
+            res[order.id]['amount_total'] = res[order.id]['amount_untaxed'] + res[order.id]['amount_tax']-res[order.id]['amount_discount']
+        return res
+    def button_dummy(self, cr, uid, ids, context=None):
+	for order in self.browse(cr,uid,ids,context=context):
+	    for line in order.order_line:
+		dproduct=line.codebar_id.item_id.discount*100
+		print dproduct
+		final=order.disc;
+		if order.disc>dproduct:
+		    final = dproduct
+		self.pool.get('sale.order.line').write(cr,uid,line.id,{'max':final},context=context)
+		print line.id
+        return True
+    def discount_sap_change(self, cr, uid, ids,discount, partner_id=False, context=None):
+	id=ids[0]
+	print "%"*50
+	if partner_id:
+	    obj_partner=self.pool.get('res.partner').browse(cr,uid,partner_id,context=context)
+	    price=discount
+	    if( obj_partner.discount*100)<discount:
+		price = obj_partner.discount*100
+            return {'value': {'disc': price},}
+	else:
+	    return {'value': {'disc': 0.0},}	
+    def _get_dated(self, cr, uid, ids, field, arg, context=None):
+        result = {}
+	for order in self.browse(cr,uid,ids,context=context):
+	    dt = datetime.strptime(order.date_order, "%Y-%m-%d %H:%M:%S").date()
+	    print "#"*50
+	    result[order.id]=dt
+	return result
+    def _get_discount(self, cr, uid, ids, field, arg, context=None):
+        result = {}
+	for order in self.browse(cr,uid,ids,context=context):
+	    dt = 0.0
+	    for line in order.order_line:
+		dt += line.price_subtotal*line.max/100
+		print dt
+		print "#"*50
+	    result[order.id]=dt
+	return result
+    def _get_ediscount(self, cr, uid, ids, field, arg, context=None):
+        result = {}
+	for order in self.browse(cr,uid,ids,context=context):
+	    dt = 0.0
+	    dt = 100*order.amount_discount/order.amount_total
+	    result[order.id]=dt
+	return result
+    _columns = {
+		'date_end': fields.date(string="Date End"),
+		'date_orderd':fields.function(_get_dated,type='date', string='Date'),
+		'amount_discount':fields.function(_get_discount,type='float', string='Discount',digits_compute=dp.get_precision('Account')),
+		'efective_discount':fields.function(_get_ediscount,type='float', string='Discount efective',digits_compute=dp.get_precision('Account')),
+		'disc':fields.float(string='Discount',digits_compute=dp.get_precision('Account')),
+		}
+    _defaults = {
+	'disc' : 0.0,
+		}
 class sap_order_line(osv.osv):
     _inherit = 'sale.order.line'
-
+    def _get_name(self, cr, uid, ids, field, arg, context=None):
+        result = {}
+	for line in self.browse(cr,uid,ids,context=context):
+	    result[line.id]=line.codebar_id.description
+	return result
     def product_uom_change(self, cursor, user, ids, pricelist, codebar_id, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False, context=None):
@@ -21,35 +110,48 @@ class sap_order_line(osv.osv):
                 partner_id=partner_id, lang=lang, update_tax=update_tax,
                 date_order=date_order, context=context)
 
+    def discount_sap_change(self, cr, uid, ids,discount, pricelist, barcode, qty=0,
+            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
+            lang=False, update_tax=True, date_order=False, packaging=False, fiscal_position=False, flag=False, context=None):
+        context = context or {}
+        lang = lang or ('lang' in context and context['lang'])
+	obj_codebars=self.pool.get('product.codebars').browse(cr,uid,barcode,context=context)
+	obj_product=self.pool.get('product.template').browse(cr,uid,obj_codebars.item_id.id,context=context)
+	print "%"*50
+	price= discount
+	if (obj_product.discount*100)<discount:
+	    price= obj_product.discount*100		
+        return {'value': {'discount': price},}
+
 
     def barcode_id_change(self, cr, uid, ids, pricelist, barcode, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False, packaging=False, fiscal_position=False, flag=False, context=None):
-	print "$"*50
-        print barcode
-	product=0
-        domain = {}
+
 	obj_codebars=self.pool.get('product.codebars').browse(cr,uid,barcode,context=context)
 	    #return {'value': {'product_id': obj_codebars.item_id.id,}}
+	print "$"*50
+	flag=True
+        if not uom:
+	    uom=obj_codebars.uom_id.id
+	    flag=False
+	product=0
+        domain = {}
+
+
 	product=obj_codebars.item_id.id
 	ratio = obj_codebars.uom_id.factor
-	uom=obj_codebars.uom_id.id
+	
 	domain = {'product_uom':
                         [('category_id', '=', obj_codebars.uom_id.category_id.id)],}
 	name=obj_codebars.description
-	if obj_codebars.uom_id.uom_type == 'smaller':
+	if obj_codebars.uom_id.uom_type == 'smaller' and uom == obj_codebars.uom_id.id:
 	    ratio= 1/ratio
-	print "#"*50
-	print "qty" +str(qty)
-	print (ratio)
 	qtyreal=ratio*qty
-	print "uom"+str(uom)
-	print pricelist
-	print product
 	discount=0
 	price =0
 	price2=0
-
+	color=False
 	arraysequence=[]
 	if pricelist and barcode:
 	    product_tmp=self.pool.get('product.product').search(cr,uid,[('product_tmpl_id','=',product)],context=context)
@@ -59,7 +161,6 @@ class sap_order_line(osv.osv):
 	        for version in tarifa.version_id:
 		    #print version.product_id.id
                     if version.product_id.id == product:
-			print "#"*50
 		        #print (version.product_id.id)
 			price = version.price;
 
@@ -81,14 +182,17 @@ class sap_order_line(osv.osv):
 			    for sequence in arraysequence:
 				if qtyreal>=sequence[0]:
 				    discount=sequence[1]
+				    print discount
+				    print "#"*50
+				    color=True
 				    break
-			    print discount
 			    price-=price*discount/100
-		        print price
 		        price2=price
 		        price*=ratio
-	    return {'value': {'price_unit': price,'price': price2,'product_uom':uom,'product_id':product_tmp[0],'name':name},domain:domain}
-	    		
+	    if flag:
+	        return {'value': {'price_unit': price,'price': price2,'product_id':product_tmp[0],'name':name,'color':color,},'domain':domain}
+	    else:
+		return {'value': {'price_unit': price,'product_uom':uom,'price': price2,'product_id':product_tmp[0],'name':name,'color':color},'domain':domain}		
         context = context or {}
         lang = lang or context.get('lang', False)
         if not partner_id:
@@ -328,4 +432,11 @@ class sap_order_line(osv.osv):
     _columns = {
 		'codebar_id': fields.many2one('product.codebars',string="Codebars"),
 		'price': fields.float(string="Precio Unitario",digits_compute=dp.get_precision('Product Price')),
+		'color': fields.boolean(string="color"),
+		'name':fields.function(_get_name,type='char', string='name'),
+		'comment':fields.text(string="Comentario"),
+		'max':fields.integer(string="discount MAX"),
+		}
+    _defaults = {
+	'color' : False,
 		}

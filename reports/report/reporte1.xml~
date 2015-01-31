@@ -192,9 +192,17 @@ td.center{
 <td style="width:6%"> Cliente</td>
 <td style="width:10%"><span t-field="o.partner_id.sap_id"/></td>
 <td style="width:34%"  colspan="2"><span t-field="o.partner_id.name"/> </td>
-<td style="width:30%" colspan="3"> </td>
-<td style="width:6%" >Fecha: </td>
-<td style="width:14%"><span t-field="o.date_order"/></td>
+<td style="width:20%" colspan="3"> </td>
+<td style="width:16%" >Fecha: </td>
+<td style="width:14%"><date t-field="o.date_orderd"/></td>
+</tr>
+<tr>
+<td style="width:6%"> </td>
+<td style="width:10%"></td>
+<td style="width:34%"  colspan="2"></td>
+<td style="width:20%" colspan="3"> </td>
+<td style="width:16%" >Fecha Vencimiento: </td>
+<td style="width:14%"><span t-field="o.date_end"/></td>
 </tr>
 </tbody>
 </table>
@@ -203,10 +211,10 @@ td.center{
 <tbody>
 <tr>
 <td style="width:10%">CÓDIGO</td>
-<td style="width:43%">DESCRIPCIÓN</td>
+<td style="width:40%">DESCRIPCIÓN</td>
 <td style="width:10%">CANTIDAD</td>
 <td style="width:7%">UNIDAD</td>
-<td style="width:10%">PRECIO</td>
+<td style="width:13%">PRECIO</td>
 <td style="width:10%">CONDICION</td>
 <td style="width:10%">EXTENSION</td>
 </tr>
@@ -219,11 +227,11 @@ td.center{
 <t t-foreach="o.order_line" t-as="a">
 <tr>
 <td style="width:10%"><span t-field="a.product_id.item_code"/></td>
-<td style="width:43%"><span t-field="a.name"/></td>
+<td style="width:40%"><span t-field="a.name"/></td>
 <td style="width:10%"><span t-field="a.product_uom_qty"/></td>
 <td style="width:7%"><span t-field="a.product_uom"/></td>
-<td style="width:10%" class="right"><span t-field="a.price_unit"/></td>
-<td style="width:10%" class="center" >E</td>
+<td style="width:13%" class="right"><span t-field="a.price_unit"/></td>
+<td style="width:10%" class="center" ><span t-field="a.tax_id.description"/></td>
 <td style="width:10%" class="right"><span t-field="a.price_subtotal"/></td>
 </tr>
 </t>
@@ -241,7 +249,7 @@ td.center{
   <tr>
     <td class="right">Descuento</td>
     <td></td>
-    <td></td>
+  <td class="right"><span t-field="o.amount_discount"/></td>
   </tr>
   <tr>
     <td class="right">Impuesto Sobre Ventas:</td>
