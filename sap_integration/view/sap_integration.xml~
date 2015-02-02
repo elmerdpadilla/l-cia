@@ -194,7 +194,6 @@
     <field name="inherit_id" ref="product.product_pricelist_version_form_view"/>
     <field name="arch" type="xml">
 <field name="pricelist_id" position="after">
-<field name="product_id"/>
 <field name="price"/>
 <field name="currency_id"/>
 </field>
@@ -219,11 +218,20 @@
            <field name="amount_untaxed" position="after">
 <field name="amount_discount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
 </field>
+<field name="client_order_ref" position="replace"/>
+<field name="pricelist_id" position="replace"/>
+<field name="currency_id" position="replace"/>
 
-           
 
+<field name="partner_id" position="after">
+<field name="name_show" context="{'default_type':'delivery'}"//>
+</field>
 
-
+<field name="project_id" position="after">
+<field name="client_order_ref"/>
+<field domain="[('type','=','sale')]" name="pricelist_id" groups="product.group_sale_pricelist" on_change="onchange_pricelist_id(pricelist_id,order_line)"/>
+<field name="currency_id" invisible="1"/>
+</field>
 <field name="date_order" position="replace">
 <field name="date_order" widget="date"/>
 <field name="date_end" widget="date"/>

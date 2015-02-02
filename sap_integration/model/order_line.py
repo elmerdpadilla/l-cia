@@ -8,6 +8,41 @@ import openerp.addons.decimal_precision as dp
 from openerp import workflow
 class sap_order(osv.osv):
     _inherit = 'sale.order'
+    def onchange_partner_id(self, cr, uid, ids, part, context=None):
+        if not part:
+            return {'value': {'partner_invoice_id': False, 'partner_shipping_id': False,  'payment_term': False, 'fiscal_position': False}}
+
+        part = self.pool.get('res.partner').browse(cr, uid, part, context=context)
+        addr = self.pool.get('res.partner').address_get(cr, uid, [part.id], ['delivery', 'invoice', 'contact'])
+        pricelist = part.property_product_pricelist and part.property_product_pricelist.id or False
+        payment_term = part.property_payment_term and part.property_payment_term.id or False
+        dedicated_salesman = part.user_id and part.user_id.id or uid
+	fiscal=None
+	print fiscal
+	if part.property_account_position:
+	    fiscal=part.property_account_position.id
+	    print part.property_account_position.name
+	    print part.property_account_position.id
+	else:
+	    fiscal=None
+        val = {
+            'partner_invoice_id': addr['invoice'],
+            'partner_shipping_id': addr['delivery'],
+            'payment_term': payment_term,
+            'user_id': dedicated_salesman,
+	    'name_show' :part.name,
+        }
+        delivery_onchange = self.onchange_delivery_id(cr, uid, ids, False, part.id, addr['delivery'], False,  context=context)
+        val.update(delivery_onchange['value'])
+	print "#"*50
+	val['fiscal_position']=fiscal
+	print val['fiscal_position']
+        if pricelist:
+            val['pricelist_id'] = pricelist
+        sale_note = self.get_salenote(cr, uid, ids, part.id, context=context)
+        if sale_note: val.update({'note': sale_note})  
+        return {'value': val}
+
     def _amount_line_tax(self, cr, uid, line, context=None):
         val = 0.0
         for c in self.pool.get('account.tax').compute_all(cr, uid, line.tax_id, line.price_unit * (1-(line.discount or 0.0)/100.0)* (1-(line.max or 0.0)/100.0), line.product_uom_qty, line.product_id, line.order_id.partner_id)['taxes']:
@@ -47,7 +82,7 @@ class sap_order(osv.osv):
 		print line.id
         return True
     def discount_sap_change(self, cr, uid, ids,discount, partner_id=False, context=None):
-	id=ids[0]
+	#id=ids[0]
 	print "%"*50
 	if partner_id:
 	    obj_partner=self.pool.get('res.partner').browse(cr,uid,partner_id,context=context)
@@ -78,7 +113,8 @@ class sap_order(osv.osv):
         result = {}
 	for order in self.browse(cr,uid,ids,context=context):
 	    dt = 0.0
-	    dt = 100*order.amount_discount/order.amount_total
+	    if order.amount_untaxed:
+	        dt = 100*order.amount_discount/order.amount_untaxed
 	    result[order.id]=dt
 	return result
     _columns = {
@@ -87,9 +123,11 @@ class sap_order(osv.osv):
 		'amount_discount':fields.function(_get_discount,type='float', string='Discount',digits_compute=dp.get_precision('Account')),
 		'efective_discount':fields.function(_get_ediscount,type='float', string='Discount efective',digits_compute=dp.get_precision('Account')),
 		'disc':fields.float(string='Discount',digits_compute=dp.get_precision('Account')),
+		'name_show':fields.char(string="name"),
 		}
     _defaults = {
 	'disc' : 0.0,
+	'date_end' : datetime.now(),
 		}
 class sap_order_line(osv.osv):
     _inherit = 'sale.order.line'
@@ -127,10 +165,10 @@ class sap_order_line(osv.osv):
     def barcode_id_change(self, cr, uid, ids, pricelist, barcode, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False, packaging=False, fiscal_position=False, flag=False, context=None):
-
 	obj_codebars=self.pool.get('product.codebars').browse(cr,uid,barcode,context=context)
 	    #return {'value': {'product_id': obj_codebars.item_id.id,}}
 	print "$"*50
+	print update_tax
 	flag=True
         if not uom:
 	    uom=obj_codebars.uom_id.id
@@ -154,9 +192,25 @@ class sap_order_line(osv.osv):
 	color=False
 	arraysequence=[]
 	if pricelist and barcode:
+	    partner_obj = self.pool.get('res.partner')
+	    partner = partner_obj.browse(cr, uid, partner_id)
+	    lang = partner.lang
+	    context_partner = {'lang': lang, 'partner_id': partner_id}
 	    product_tmp=self.pool.get('product.product').search(cr,uid,[('product_tmpl_id','=',product)],context=context)
 	    obj_tarifa=self.pool.get('product.pricelist').browse(cr,uid,pricelist,context=context)
-            price=0
+	    product_obj = self.pool.get('product.product')
+	    fiscal_obj = self.pool.get('account.fiscal.position')
+            fpos = False
+            product_obj = product_obj.browse(cr, uid, product_tmp, context=context_partner)
+	    tax=[]
+            if not fiscal_position:
+                fpos = partner.property_account_position or False
+            else:
+                fpos = self.pool.get('account.fiscal.position').browse(cr, uid, fiscal_position)
+	    if True: #The quantity only have changed
+		print "$"*80
+		print product_obj.name
+                tax= self.pool.get('account.fiscal.position').map_tax(cr, uid, fpos, product_obj.taxes_id)
             for tarifa in obj_tarifa:
 	        for version in tarifa.version_id:
 		    #print version.product_id.id
@@ -189,10 +243,12 @@ class sap_order_line(osv.osv):
 			    price-=price*discount/100
 		        price2=price
 		        price*=ratio
+	    print "()"*50
+	    print tax
 	    if flag:
-	        return {'value': {'price_unit': price,'price': price2,'product_id':product_tmp[0],'name':name,'color':color,},'domain':domain}
+	        return {'value': {'price_unit': price,'price': price2,'product_id':product_tmp[0],'name':name,'color':color,'tax_id':tax},'domain':domain,}
 	    else:
-		return {'value': {'price_unit': price,'product_uom':uom,'price': price2,'product_id':product_tmp[0],'name':name,'color':color},'domain':domain}		
+		return {'value': {'price_unit': price,'product_uom':uom,'price': price2,'product_id':product_tmp[0],'name':name,'color':color,'tax_id':tax},'domain':domain}		
         context = context or {}
         lang = lang or context.get('lang', False)
         if not partner_id:

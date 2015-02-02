@@ -1,0 +1,509 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* sap_integration
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-02-02 03:11+0000\n"
+"PO-Revision-Date: 2015-02-02 03:11+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sap_integration
+#: field:product.codebars,uom_id:0
+msgid " UoM"
+msgstr " UoM"
+
+#. module: sap_integration
+#: help:sap_integration.salesperson,status:0
+msgid "0:new, 1:updated in Destination(Odoo), 2:Updated in Source(SAP) and finish"
+msgstr "0:new, 1:updated in Destination(Odoo), 2:Updated in Source(SAP) and finish"
+
+#. module: sap_integration
+#: model:ir.actions.act_window,help:sap_integration.sap_integration_action_form_log
+msgid "<p class=\"oe_view_nocontent_create\">\n"
+"					Click to add a new Log.\n"
+"				  </p>\n"
+"				  <p>\n"
+"					With just a quick glance on the OpenERP log screen, you\n"
+"					can easily find all the information about your each day log;					\n"
+"				  </p>\n"
+"				"
+msgstr "<p class=\"oe_view_nocontent_create\">\n"
+"					Click to add a new Log.\n"
+"				  </p>\n"
+"				  <p>\n"
+"					With just a quick glance on the OpenERP log screen, you\n"
+"					can easily find all the information about your each day log;					\n"
+"				  </p>\n"
+"				"
+
+#. module: sap_integration
+#: field:product.codebars,bar_code:0
+msgid "Bar Code"
+msgstr "Código de barras"
+
+#. module: sap_integration
+#: field:product.pricelist,based_in:0
+msgid "Based In"
+msgstr "Based In"
+
+#. module: sap_integration
+#: code:addons/sap_integration/model/order_line.py:201
+#: code:addons/sap_integration/model/order_line.py:328
+#, python-format
+msgid "Before choosing a product,\n"
+" select a customer in the sales form."
+msgstr "Before choosing a product,\n"
+" select a customer in the sales form."
+
+#. module: sap_integration
+#: code:addons/sap_integration/model/order_line.py:292
+#: code:addons/sap_integration/model/order_line.py:419
+#, python-format
+msgid "Cannot find a pricelist line matching this product and quantity.\n"
+"You have to change either the product, the quantity or the pricelist."
+msgstr "Cannot find a pricelist line matching this product and quantity.\n"
+"You have to change either the product, the quantity or the pricelist."
+
+#. module: sap_integration
+#: field:res.partner,sap_id:0
+msgid "Card Code"
+msgstr "Código"
+
+#. module: sap_integration
+#: view:product.template:sap_integration.view_sap_integration_product_template_form
+msgid "Codebar List"
+msgstr "Lista de Códigos de barra"
+
+#. module: sap_integration
+#: field:product.template,product_codebars_ids:0
+#: field:sale.order.line,codebar_id:0
+msgid "Codebars"
+msgstr "Códigos de barra"
+
+#. module: sap_integration
+#: help:product.template,product_codebars_ids:0
+msgid "Codigos de Barras"
+msgstr "Codigos de barra"
+
+#. module: sap_integration
+#: field:sale.order.line,comment:0
+msgid "Comentario"
+msgstr "Comentario"
+
+#. module: sap_integration
+#: view:sale.order:sap_integration.view_sap_integration_sale_order_form
+msgid "Comentarios"
+msgstr "Comentarios"
+
+#. module: sap_integration
+#: code:addons/sap_integration/model/order_line.py:300
+#: code:addons/sap_integration/model/order_line.py:427
+#, python-format
+msgid "Configuration Error!"
+msgstr "Configuration Error!"
+
+#. module: sap_integration
+#: view:res.partner:sap_integration.view_sap_integration_partner_tree
+msgid "Contacts"
+msgstr "Contactos"
+
+#. module: sap_integration
+#: field:product.codebars,create_uid:0
+#: field:product.pricelist.discount,create_uid:0
+#: field:sap_integration.log,create_uid:0
+#: field:sap_integration.product.maker,create_uid:0
+#: field:sap_integration.salesperson,create_uid:0
+msgid "Created by"
+msgstr "Created by"
+
+#. module: sap_integration
+#: field:product.codebars,create_date:0
+#: field:product.pricelist.discount,create_date:0
+#: field:sap_integration.log,create_date:0
+#: field:sap_integration.product.maker,create_date:0
+#: field:sap_integration.salesperson,create_date:0
+msgid "Created on"
+msgstr "Created on"
+
+#. module: sap_integration
+#: field:product.pricelist.version,currency_id:0
+msgid "Currency"
+msgstr "Currency"
+
+#. module: sap_integration
+#: field:sale.order,date_orderd:0
+msgid "Date"
+msgstr "Date"
+
+#. module: sap_integration
+#: field:sale.order,date_end:0
+msgid "Date End"
+msgstr "Válida hasta"
+
+#. module: sap_integration
+#: field:product.codebars,description:0
+#: field:sap_integration.log,description:0
+msgid "Description"
+msgstr "Descripción"
+
+#. module: sap_integration
+#: help:sap_integration.log,description:0
+msgid "Description of message"
+msgstr "Description of message"
+
+#. module: sap_integration
+#: field:product.pricelist,factor:0
+#: field:product.pricelist.discount,discount:0
+#: field:product.template,discount:0
+#: field:res.partner,discount:0
+#: field:sale.order,amount_discount:0
+#: field:sale.order,disc:0
+msgid "Discount"
+msgstr "Descuento"
+
+#. module: sap_integration
+#: field:sale.order,efective_discount:0
+msgid "Discount efective"
+msgstr "Descuento eectivo"
+
+#. module: sap_integration
+#: field:product.pricelist.version,product_pricelist_discount_ids:0
+msgid "Discount lines"
+msgstr "Discount lines"
+
+#. module: sap_integration
+#: field:sap_integration.salesperson,error_message:0
+msgid "Error message"
+msgstr "Error message"
+
+#. module: sap_integration
+#: field:product.pricelist.version,Factor:0
+msgid "Factor"
+msgstr "Factor"
+
+#. module: sap_integration
+#: field:product.codebars,id:0
+#: field:product.pricelist.discount,id:0
+#: field:sap_integration.log,id:0
+#: field:sap_integration.product.maker,id:0
+#: field:sap_integration.salesperson,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: sap_integration
+#: help:account.payment.term,sap_id:0
+msgid "Id en SAP"
+msgstr "Id en SAP"
+
+#. module: sap_integration
+#: help:sap_integration.salesperson,odoo_id:0
+msgid "Id in Odoo"
+msgstr "Id in Odoo"
+
+#. module: sap_integration
+#: help:sap_integration.salesperson,sap_id:0
+msgid "Id in SAP"
+msgstr "Id in SAP"
+
+#. module: sap_integration
+#: view:sale.order:sap_integration.view_sap_integration_sale_order_form
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: sap_integration
+#: field:product.template,is_commited:0
+msgid "Is Commited"
+msgstr "Is Commited"
+
+#. module: sap_integration
+#: field:product.codebars,item_code:0
+#: field:product.template,item_code:0
+msgid "Item Code"
+msgstr "Código"
+
+#. module: sap_integration
+#: field:product.codebars,write_uid:0
+#: field:product.pricelist.discount,write_uid:0
+#: field:sap_integration.log,write_uid:0
+#: field:sap_integration.product.maker,write_uid:0
+#: field:sap_integration.salesperson,write_uid:0
+msgid "Last Updated by"
+msgstr "Last Updated by"
+
+#. module: sap_integration
+#: field:product.codebars,write_date:0
+#: field:product.pricelist.discount,write_date:0
+#: field:sap_integration.log,write_date:0
+#: field:sap_integration.product.maker,write_date:0
+#: field:sap_integration.salesperson,write_date:0
+msgid "Last Updated on"
+msgstr "Last Updated on"
+
+#. module: sap_integration
+#: field:product.pricelist.version,line_num:0
+msgid "Line Num"
+msgstr "Line Num"
+
+#. module: sap_integration
+#: model:ir.actions.act_window,name:sap_integration.sap_integration_action_form_log
+#: model:ir.ui.menu,name:sap_integration.log_edit
+msgid "Logs"
+msgstr "Logs"
+
+#. module: sap_integration
+#: field:sap_integration.product.maker,name:0
+#: field:sap_integration.salesperson,name:0
+msgid "Name"
+msgstr "Name"
+
+#. module: sap_integration
+#: code:addons/sap_integration/model/order_line.py:201
+#: code:addons/sap_integration/model/order_line.py:328
+#, python-format
+msgid "No Customer Defined!"
+msgstr "¡Cliente no definido!"
+
+#. module: sap_integration
+#: code:addons/sap_integration/model/order_line.py:284
+#: code:addons/sap_integration/model/order_line.py:411
+#, python-format
+msgid "No Pricelist ! : "
+msgstr "¡ No hay una lista de precio seleccionada! : "
+
+#. module: sap_integration
+#: code:addons/sap_integration/model/order_line.py:295
+#: code:addons/sap_integration/model/order_line.py:422
+#, python-format
+msgid "No valid pricelist line found ! :"
+msgstr "¡No se encuentra un precio válido ! :"
+
+#. module: sap_integration
+#: field:sap_integration.salesperson,odoo_id:0
+msgid "Odoo ID"
+msgstr "Odoo ID"
+
+#. module: sap_integration
+#: field:product.template,on_hand:0
+msgid "On Hand"
+msgstr "A mano"
+
+#. module: sap_integration
+#: field:product.template,on_order:0
+msgid "On Order"
+msgstr "En Órden"
+
+#. module: sap_integration
+#: model:ir.model,name:sap_integration.model_res_partner
+msgid "Partner"
+msgstr "Empresa"
+
+#. module: sap_integration
+#: model:ir.model,name:sap_integration.model_res_partner_category
+msgid "Partner Tags"
+msgstr "Etiquetas de empresa"
+
+#. module: sap_integration
+#: model:ir.model,name:sap_integration.model_account_payment_term
+msgid "Payment Term"
+msgstr "Plazo de pago"
+
+#. module: sap_integration
+#: view:sale.order:sap_integration.view_sap_integration_sale_order_form
+msgid "Precio"
+msgstr "Precio"
+
+#. module: sap_integration
+#: field:sale.order.line,price:0
+msgid "Precio Unitario"
+msgstr "Precio Unitario"
+
+#. module: sap_integration
+#: field:product.pricelist.version,price:0
+msgid "Price"
+msgstr "Precio"
+
+#. module: sap_integration
+#: field:product.pricelist.discount,pricelist_version_id:0
+msgid "Price List Version"
+msgstr "Price List Version"
+
+#. module: sap_integration
+#: model:ir.model,name:sap_integration.model_product_pricelist
+msgid "Pricelist"
+msgstr "Lista de precio"
+
+#. module: sap_integration
+#: model:ir.model,name:sap_integration.model_product_pricelist_version
+#: view:product.pricelist:sap_integration.view_sap_integration_product_pricelist_form
+msgid "Pricelist Version"
+msgstr "Versión tarifa"
+
+#. module: sap_integration
+#: field:product.codebars,item_id:0
+#: field:product.pricelist.version,product_id:0
+msgid "Product"
+msgstr "Producto"
+
+#. module: sap_integration
+#: model:ir.model,name:sap_integration.model_product_category
+msgid "Product Category"
+msgstr "Categoría de producto"
+
+#. module: sap_integration
+#: field:product.template,property_product_maker:0
+#: help:product.template,property_product_maker:0
+msgid "Product Maker"
+msgstr "Fabricante"
+
+#. module: sap_integration
+#: model:ir.model,name:sap_integration.model_product_template
+msgid "Product Template"
+msgstr "Plantilla de producto"
+
+#. module: sap_integration
+#: model:ir.model,name:sap_integration.model_product_uom
+msgid "Product Unit of Measure"
+msgstr "Unidad de medida del producto"
+
+#. module: sap_integration
+#: field:product.template,product_uom_cat_id:0
+msgid "Product UoM Categ Id"
+msgstr "Product UoM Categ Id"
+
+#. module: sap_integration
+#: model:ir.model,name:sap_integration.model_product_uom_categ
+msgid "Product uom categ"
+msgstr "Categ. UdM de producto"
+
+#. module: sap_integration
+#: view:sale.order:sap_integration.view_sap_integration_sale_order_form
+msgid "Producto"
+msgstr "Producto"
+
+#. module: sap_integration
+#: field:product.pricelist.discount,amount:0
+msgid "Quantity"
+msgstr "Cantidad"
+
+#. module: sap_integration
+#: field:account.payment.term,sap_id:0
+#: field:sap_integration.salesperson,sap_id:0
+msgid "SAP ID"
+msgstr "SAP ID"
+
+#. module: sap_integration
+#: view:product.template:sap_integration.view_sap_integration_product_template_form
+#: view:res.partner:sap_integration.view_sap_integration_partner_form
+msgid "SAP info"
+msgstr "Información adicional SAP"
+
+#. module: sap_integration
+#: model:ir.model,name:sap_integration.model_sale_order
+msgid "Sales Order"
+msgstr "Pedido de venta"
+
+#. module: sap_integration
+#: model:ir.model,name:sap_integration.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Línea pedido de venta"
+
+#. module: sap_integration
+#: view:sale.order:sap_integration.view_sap_integration_sale_order_form
+msgid "Sales Order Lines"
+msgstr "Líneas pedido de ventas"
+
+#. module: sap_integration
+#: field:res.partner.category,sap_id:0
+msgid "Sap Id"
+msgstr "Sap Id"
+
+#. module: sap_integration
+#: field:product.pricelist.discount,sequence:0
+msgid "Sequence"
+msgstr "Sequencia"
+
+#. module: sap_integration
+#: model:ir.ui.menu,name:sap_integration.setting_menu
+msgid "Setting Sap"
+msgstr "Setting Sap"
+
+#. module: sap_integration
+#: field:sap_integration.salesperson,status:0
+msgid "Status"
+msgstr "Status"
+
+#. module: sap_integration
+#: field:product.template,supplier_cat_num:0
+msgid "Supplier Catalog Num"
+msgstr "Num. Catálogo Fabricante"
+
+#. module: sap_integration
+#: view:sale.order:sap_integration.view_sap_integration_sale_order_form
+msgid "UoS"
+msgstr "UdV"
+
+#. module: sap_integration
+#: code:addons/sap_integration/model/order_line.py:282
+#: code:addons/sap_integration/model/order_line.py:409
+#, python-format
+msgid "You have to select a pricelist or a customer in the sales form !\n"
+"Please set one before choosing a product."
+msgstr "You have to select a pricelist or a customer in the sales form !\n"
+"Please set one before choosing a product."
+
+#. module: sap_integration
+#: field:sale.order.line,color:0
+msgid "color"
+msgstr "color"
+
+#. module: sap_integration
+#: field:sap_integration.salesperson,date_in:0
+msgid "date In"
+msgstr "date In"
+
+#. module: sap_integration
+#: field:sap_integration.salesperson,date_mig:0
+msgid "date Mig"
+msgstr "date Mig"
+
+#. module: sap_integration
+#: field:sale.order.line,max:0
+msgid "discount MAX"
+msgstr "Descuento máximo"
+
+#. module: sap_integration
+#: field:sap_integration.log,log:0
+msgid "message"
+msgstr "message"
+
+#. module: sap_integration
+#: help:sap_integration.log,log:0
+msgid "message log"
+msgstr "message log"
+
+#. module: sap_integration
+#: field:product.codebars,name:0
+msgid "name"
+msgstr "Nombre"
+
+#. module: sap_integration
+#: field:product.category,sap_id:0
+#: field:product.codebars,sap_id:0
+#: field:product.pricelist,sap_id:0
+#: field:product.pricelist.discount,sap_id:0
+#: field:product.pricelist.version,sap_id:0
+#: field:product.template,sap_id:0
+#: field:product.uom,sap_id:0
+#: field:product.uom.categ,sap_id:0
+#: field:sap_integration.product.maker,sap_id:0
+msgid "sap_id"
+msgstr "sap_id"
+
