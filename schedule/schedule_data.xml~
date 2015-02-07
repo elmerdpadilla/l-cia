@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<openerp>
+  <data noupdate="1">
+    <!-- schedule action -->
+    <record forcecreate="True" id="ir_cron_update_series" model="ir.cron">
+      <field name="name">Migrate Series</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'Series'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+
+    <record forcecreate="True" id="ir_cron_update_customers" model="ir.cron">
+      <field name="name">Migrate Customers</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">minutes</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'customers'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+
+    <record forcecreate="True" id="ir_cron_update_ProductMaker" model="ir.cron">
+      <field name="name">Migrate ProductMaker</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'ProductMaker'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+
+    <record forcecreate="True" id="ir_cron_update_ProductUoMCategory" model="ir.cron">
+      <field name="name">Migrate ProductUoMCategory</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'ProductUoMCategory'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+
+    <record forcecreate="True" id="ir_cron_update_ProductUoM" model="ir.cron">
+      <field name="name">Migrate ProductUoM</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'ProductUoM'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+
+    <record forcecreate="True" id="ir_cron_update_Items" model="ir.cron">
+      <field name="name">Migrate Items</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">minutes</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'Items'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+
+    <record forcecreate="True" id="ir_cron_update_PriceList" model="ir.cron">
+      <field name="name">Migrate PriceList</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'PriceList'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+
+    <record forcecreate="True" id="ir_cron_update_PriceListVersion" model="ir.cron">
+      <field name="name">Migrate PriceListVersion</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">minutes</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'PriceListVersion'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+
+    <record forcecreate="True" id="ir_cron_update_PriceListDiscounts" model="ir.cron">
+      <field name="name">Migrate PriceListDiscounts</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">minutes</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'PriceListDiscounts'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+
+    <record forcecreate="True" id="ir_cron_update_BarCode" model="ir.cron">
+      <field name="name">Migrate BarCode</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">hours</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'BarCode'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+  </data>
+</openerp>

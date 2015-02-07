@@ -1,0 +1,4 @@
+def test(d):
+	name ="dado"
+	print d
+test('name')
