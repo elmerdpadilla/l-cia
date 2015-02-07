@@ -72,7 +72,31 @@
             </field>
         </record>
 
+        <record id="sap_integration_password_form_view" model="ir.ui.view">
+            <field name="name">sap.integration.password.form</field>
+            <field name="model">sap_integration.password</field>
+            <field name="arch" type="xml">
+<form create="true">
+<header>
 
+</header>
+<sheet>
+
+<group colspan="2">
+<group colspan="2"> 
+<field name= "discount" />
+<field name= "user" />
+<field name="passw" password="True"/>
+</group>
+<group colspan="1">
+
+<button name="create" string="Aceptar"/>
+</group></group>
+
+</sheet>
+</form>
+            </field>
+        </record>
 
 
 <menuitem id="setting_menu" name="Setting Sap" parent="base.menu_base_partner" />
@@ -210,6 +234,11 @@
 </field>
     </field>
 </record>
+
+
+
+
+
 <record model="ir.ui.view" id="view_sap_integration_sale_order_form">
     <field name="name">sap.integration.sale.order.form.inherit</field>
     <field name="model">sale.order</field>
@@ -226,7 +255,7 @@
 
 <field name="partner_id" position="after">
 <field name="name_show" attrs="{'invisible':[('is_visible','=',False)]}"/>
-<field name="is_visible" invisible="1"
+<field name="is_visible" invisible="1"/>
 </field>
 
 
@@ -238,11 +267,20 @@
 <field name="date_order" position="replace">
 <field name="date_order" widget="date"/>
 <field name="date_end" widget="date"/>
+
 <label for="disc"/>
   <div name="disc">
 
                                                 <field action="action_view" name="disc" type="object" class="oe_inline" on_change="discount_sap_change(disc,order_line, partner_id, context)"/> % <button name="action_view"  string="update" type="object" class="oe_edit_only oe_link"/>
+                                            </div> 
+<!--
+<label for="disc2"/>
+  <div name="disc2">
+
+                                                <field  name="disc2" type="object" class="oe_inline" on_change="discount_sap_change(disc2,order_line, partner_id, context)"/>% <button name="action_view"  string="update" type="object" class="oe_edit_only oe_link"/>
                                             </div>
+-->
+
 <label for="efective_discount"/>
   <div name="efective_discount">
                                                 <field name="efective_discount" class="oe_inline" /> %
@@ -276,8 +314,11 @@ filter_domain="['|',('ean13','ilike',self),('default_code','ilike',self)]" invis
                                             <label for="product_uom_qty"/>
                                             <div>
                                                 <field context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom}" name="product_uom_qty" class="oe_inline" on_change="barcode_id_change(parent.pricelist_id, codebar_id, product_uom_qty, False, product_uos_qty, False, name, parent.partner_id, False, True, parent.date_order, False, parent.fiscal_position, False, context)"/>
-                                                <field name="product_uom" groups="product.group_uom" class="oe_inline oe_no_button" options='{"no_open": True,"no_create": True}'
+                                              
+<field name="category_id" invisible="1"/>
+  <field name="product_uom" groups="product.group_uom" class="oe_inline oe_no_button" options='{"no_open": True,"no_create": True}'
  on_change="product_uom_change(parent.pricelist_id, codebar_id, product_uom_qty, product_uom, product_uos_qty, product_uos, name, parent.partner_id, False, False, parent.date_order, context)"
+domain=" [('category_id', '=', category_id)]"
 /> 
                                             </div>
                                             <label for="product_uos_qty" groups="product.group_uos"/>
@@ -295,7 +336,8 @@ filter_domain="['|',('ean13','ilike',self),('default_code','ilike',self)]" invis
                                         </group>
                                         <group>
                                             <field name="tax_id" widget="many2many_tags" domain="[('parent_id','=',False),('type_tax_use','&lt;&gt;','purchase')]"/>
-<field name="price" readonly="1"/>
+<field name="price" readonly="0" invisible="1"/>
+<field name="price_show" />
 						<field name="discountmax"/>
 						<field name="pricegravad"/>
                                         </group>
@@ -326,7 +368,10 @@ filter_domain="['|',('item_code','ilike',self),('bar_code','ilike',self)]" invis
 
                                     <field name="name" />
                                     <field name="product_uom_qty" context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom}" on_change="product_id_change(parent.pricelist_id, product_id, product_uom_qty, product_uom, product_uos_qty, product_uos, name, parent.partner_id, False, False, parent.date_order, False, parent.fiscal_position, True, context)"/>
-                                    <field name="product_uom" on_change="product_uom_change(parent.pricelist_id, product_id, product_uom_qty, product_uom, product_uos_qty, product_uos, name, parent.partner_id, False, False, parent.date_order, context)" groups="product.group_uom" options="{&quot;no_open&quot;: True}"/>
+                                    <field name="product_uom" on_change="product_uom_change(parent.pricelist_id, product_id, product_uom_qty, product_uom, product_uos_qty, product_uos, name, parent.partner_id, False, False, parent.date_order, context)" groups="product.group_uom" options="{&quot;no_open&quot;: True}"
+
+
+/>
                                     <field name="product_uos_qty" groups="product.group_uos" invisible="1"/>
                                     <field name="product_uos" string="UoS" groups="product.group_uos" invisible="1"/>
                                     <field name="price_unit" string="Precio Neto"/>
@@ -334,7 +379,7 @@ filter_domain="['|',('item_code','ilike',self),('bar_code','ilike',self)]" invis
                                     <field name="discount" groups="sale.group_discount_per_so_line"/>
                                     <field name="price_subtotal"/>
 				<field name="color" invisible="1" />
-				<field name="max" invisible="0" on_change="disc_sap_change(discount,parent.pricelist_id, codebar_id, product_uom_qty, False, product_uos_qty, False, name, parent.partner_id, False, True, parent.date_order, False, parent.fiscal_position, False, context)"/>				
+				<field name="max" invisible="1" on_change="disc_sap_change(discount,parent.pricelist_id, codebar_id, product_uom_qty, False, product_uos_qty, False, name, parent.partner_id, False, True, parent.date_order, False, parent.fiscal_position, False, context)"/>				
                                 </tree>
                             </field>
 </field>

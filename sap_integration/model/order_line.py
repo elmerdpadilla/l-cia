@@ -7,6 +7,17 @@ from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FO
 import openerp.addons.decimal_precision as dp
 from openerp import workflow
 from dateutil.relativedelta import relativedelta
+from passlib.context import CryptContext
+default_crypt_context = CryptContext(
+    # kdf which can be verified by the context. The default encryption kdf is
+    # the first of the list
+    ['pbkdf2_sha512', 'md5_crypt'],
+    # deprecated algorithms are still verified as usual, but ``needs_update``
+    # will indicate that the stored hash should be replaced by a more recent
+    # algorithm. Passlib 1.6 supports an `auto` value which deprecates any
+    # algorithm but the default, but Debian only provides 1.5 so...
+    deprecated=['md5_crypt'],
+)
 class sap_order(osv.osv):
     _inherit = 'sale.order'
     def onchange_partner_id(self, cr, uid, ids, part, context=None):
@@ -38,7 +49,9 @@ class sap_order(osv.osv):
         sale_note = self.get_salenote(cr, uid, ids, part.id, context=context)
         if sale_note: val.update({'note': sale_note})  
         return {'value': val}
-
+    def _amount_all_wrapper(self, cr, uid, ids, field_name, arg, context=None):
+        """ Wrapper because of direct method passing as parameter for function fields """
+        return self._amount_all(cr, uid, ids, field_name, arg, context=context)
     def _amount_line_tax(self, cr, uid, line, context=None):
         val = 0.0
         for c in self.pool.get('account.tax').compute_all(cr, uid, line.tax_id, line.price_unit * (1-(line.discount or 0.0)/100.0)* (1-(line.max or 0.0)/100.0), line.product_uom_qty, line.product_id, line.order_id.partner_id)['taxes']:
@@ -52,8 +65,6 @@ class sap_order(osv.osv):
         :param int fiscal_position: sale order fiscal position
         :param list order_lines: command list for one2many write method
         '''
-	print order_lines
-	print "#"*50
         order_line = []
         fiscal_obj = self.pool.get('account.fiscal.position')
         product_obj = self.pool.get('product.product')
@@ -88,23 +99,22 @@ class sap_order(osv.osv):
                         order_line.append([4, line_id])
             else:
                 order_line.append(line)
-        print "%"*50
-        print order_line
         return {'value': {'order_line': order_line}}
     def action_view(self, cr, uid, ids, context=None):
 	id = ids[0]
+	
 	login='admin'
 	cr.execute('SELECT password, password_crypt FROM res_users WHERE login=%s AND active', (login,))
         encrypted = None
-	print uid
-	print "$7"*50
 	return {
             'type': 'ir.actions.act_window',
-	'name': 'Create turn Invoice',
+	    'name': 'authenticate',
              'view_type': 'form',
              'view_mode': 'form',
             'res_model': 'sap_integration.password',
             'target': 'new',
+	    'context': id,
+	 
         }
     def _amount_all(self, cr, uid, ids, field_name, arg, context=None):
         cur_obj = self.pool.get('res.currency')
@@ -120,11 +130,11 @@ class sap_order(osv.osv):
             cur = order.pricelist_id.currency_id
             for line in order.order_line:
                 val1 += line.price_subtotal
-                val += self._amount_line_tax(cr, uid, line, context=context)
+		for tax in line.tax_id:
+		    val += (line.price_subtotal-line.price_subtotal*line.max/100 )*tax.amount
 		val2 += line.price_subtotal*line.max/100
-	    print "#"*50
-	    print val2
 	    self.pool.get('sale.order').write(cr,uid,order.id,{'amount_discount':val2},context=context)
+            self.pool.get('sale.order').write(cr,uid,order.id,{'amount_tax':val},context=context)
             res[order.id]['amount_tax'] = cur_obj.round(cr, uid, cur, val)
             res[order.id]['amount_untaxed'] = cur_obj.round(cr, uid, cur, val1)
 	    res[order.id]['amount_discount'] = cur_obj.round(cr, uid, cur, val2)
@@ -132,19 +142,21 @@ class sap_order(osv.osv):
 	    #res[order.id]['amount_total'] = 88
         return res
     def button_dummy(self, cr, uid, ids, context=None):
+	print "!"*50
 	for order in self.browse(cr,uid,ids,context=context):
+	    tax=0.0
 	    for line in order.order_line:
 		dproduct=line.codebar_id.item_id.discount*100
 		final=order.disc;
 		if order.disc>dproduct:
 		    final = dproduct
 		self.pool.get('sale.order.line').write(cr,uid,line.id,{'max':final},context=context)
-        return True
+	        for taxes in line.tax_id:
+		    tax+= (line.price_subtotal-line.price_subtotal*final/100 )*taxes.amount
+		self.pool.get('sale.order').write(cr,uid,order.id,{'amount_tax':tax},context=context)
+        return {'value': {'client_order_ref': 'hola'},}
     def discount_sap_change(self, cr, uid, ids,discount,order_lines, partner_id=False , context=None):
-	print "#"*50
 	obj_line=self.pool.get('product.product')
-	
-	
 	order_line=[]
 	disc=0
 	line_obj = self.pool.get('sale.order.line')
@@ -154,22 +166,19 @@ class sap_order(osv.osv):
 	    if( obj_partner.discount)<=discount:
 		price = obj_partner.discount
 		disc=price
-	
+        if len(ids)==1:
+	    id=ids[0]
+	    sap=self.pool.get('sap_integration.password').search(cr,uid,[('order_id', '=', id )],context=context)
+	    if len(sap)>0:
+		obj_pass=self.pool.get('sap_integration.password').browse(cr,uid,sap[len(sap)-1],context=context)
+		if disc>obj_pass.discount:
+		    disc=obj_pass.discount
+	    else:
+		disc=0
         for line in order_lines:
-            # create    (0, 0,  { fields })
-            # update    (1, ID, { fields })
-
-            # link      (4, ID)
-            # link all  (6, 0, IDS)
-           
             if line[0] in [4, 6]:
-
-		print "&"*50
                 line_ids = line[0] == 4 and [line[1]] or line[2]
                 for line_id in line_ids:
-		    print line_obj.browse(cr,uid,line_id,context=context).name
-			
-		    print line_id
                     prod = line_obj.browse(cr, uid, line_id, context=context).product_id
                     if prod :
 			if prod.discount*100>disc:
@@ -180,8 +189,6 @@ class sap_order(osv.osv):
                         order_line.append([4, line_id])
             else:
                 order_line.append(line)
-	print order_line
-	print "%"*50
 
 	return	{'value': {'disc': disc,'order_line':order_line},}
     def _get_dated(self, cr, uid, ids, field, arg, context=None):
@@ -206,17 +213,41 @@ class sap_order(osv.osv):
 	        dt = 100*order.amount_discount/order.amount_untaxed
 	    result[order.id]=dt
 	return result
+    def _get_disc(self, cr, uid, ids, field, arg, context=None):
+        result = {}
+	sap=[]
+	if len(ids)==1:
+	    id=ids[0]
+	    sap=self.pool.get('sap_integration.password').search(cr,uid,[('order_id', '=', id )],context=context)
+	    if len(sap)>0:
+		obj_pass=self.pool.get('sap_integration.password').browse(cr,uid,sap[len(sap)-1],context=context)
+		result[id]=obj_pass.discount
+	    else:
+		result[id]=0
+	return result
+    def _get_order(self, cr, uid, ids, context=None):
+        result = {}
+        for line in self.pool.get('sale.order.line').browse(cr, uid, ids, context=context):
+            result[line.order_id.id] = True
+        return result.keys()
     def _get_isvisible(self, cr, uid, ids, field, arg, context=None):
 	result = {}
 	for order in self.browse(cr,uid,ids,context=context):
 	    result[order.id]=order.partner_id.change_name
 	return result
     _columns = {
+ 'amount_tax': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Taxes',
+            store={
+                'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
+                'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10),
+            },
+            multi='sums', help="The tax amount."),
 		'date_end': fields.date(string="Date End"),
 		'date_orderd':fields.function(_get_dated,type='date', string='Date'),
 		'amount_discount':fields.float(string='Discount',digits_compute=dp.get_precision('Account')),
 		'efective_discount':fields.function(_get_ediscount,type='float', string='Discount efective',digits_compute=dp.get_precision('Account')),
 		'disc':fields.float(string='Discount',digits_compute=dp.get_precision('Account')),
+		'disc2':fields.function(_get_disc,type='float',string='Discount',digits_compute=dp.get_precision('Account')),
 		'name_show':fields.char(string="name"),
 		'is_visible':fields.function(_get_isvisible,type='boolean',string="Visible"),
 		}
@@ -224,8 +255,21 @@ class sap_order(osv.osv):
 	'disc' : 0.0,
 	'date_end' : datetime.now()+relativedelta(days=5),
 		}
+
+
+
 class sap_order_line(osv.osv):
     _inherit = 'sale.order.line'
+    def _get_priceU(self, cr, uid, ids, field, arg, context=None):
+        result = {}
+	for line in self.browse(cr,uid,ids,context=context):
+	    result[line.id]=line.price
+	return result
+    def _get_id(self, cr, uid, ids, field, arg, context=None):
+        result = {}
+	for line in self.browse(cr,uid,ids,context=context):
+	    result[line.id]=line.codebar_id.uom_id.category_id.id
+	return result
     def _get_name(self, cr, uid, ids, field, arg, context=None):
         result = {}
 	for line in self.browse(cr,uid,ids,context=context):
@@ -242,6 +286,8 @@ class sap_order_line(osv.osv):
 	    imp=line.price
 	    for tax in line.tax_id:
 		imp+=line.price*tax.amount
+	    print "#"*50
+	    print imp
 	    result[line.id]=imp
 	return result
     def product_uom_change(self, cursor, user, ids, pricelist, codebar_id, qty=0,
@@ -283,17 +329,27 @@ class sap_order_line(osv.osv):
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False, packaging=False, fiscal_position=False, flag=False, context=None):
 	obj_codebars=self.pool.get('product.codebars').browse(cr,uid,barcode,context=context)
+	
 	    #return {'value': {'product_id': obj_codebars.item_id.id,}}
 	flag=True
+	print "!"*50
+	print uom
+	ratio =1
         if not uom:
 	    uom=obj_codebars.uom_id.id
 	    flag=False
+	    ratio = obj_codebars.uom_id.factor
+	else:
+	
+	    obj_uom=self.pool.get('product.uom').browse(cr,uid,uom,context=context)
+	    print ratio
+	    ratio =obj_uom.factor
 	product=0
-	print "!"*60
-	print ids
         domain = {}
 	product=obj_codebars.item_id.id
-	ratio = obj_codebars.uom_id.factor
+	
+	
+	
 	
 	domain = {'product_uom':
                         [('category_id', '=', obj_codebars.uom_id.category_id.id)],}
@@ -326,9 +382,7 @@ class sap_order_line(osv.osv):
                 tax= self.pool.get('account.fiscal.position').map_tax(cr, uid, fpos, product_obj.taxes_id)
             for tarifa in obj_tarifa:
 	        for version in tarifa.version_id:
-		    #print version.product_id.id
                     if version.product_id.id == product:
-		        #print (version.product_id.id)
 			price = version.price;
 
 			for sequence in version.product_pricelist_discount_ids:
@@ -362,9 +416,9 @@ class sap_order_line(osv.osv):
 		    pricegravad+=pricegravad*tax.amount
 		
 	    if flag:
-	        return {'value': {'pricegravad':pricegravad,'discountmax':product_obj.discount*100,'price_unit': price,'price': price2,'product_id':product_tmp[0],'name':name,'color':color,'tax_id':tax},'domain':domain,}
+	        return {'value': {'pricegravad':pricegravad,'discountmax':product_obj.discount*100,'price_unit': price,'price': price2,'price_show':price2,'product_id':product_tmp[0],'name':name,'color':color,'tax_id':tax},'domain':domain,}
 	    else:
-		return {'value': {'pricegravad':pricegravad,'discountmax':product_obj.discount*100,'price_unit': price,'product_uom':uom,'price': price2,'product_id':product_tmp[0],'name':name,'color':color,'tax_id':tax},'domain':domain}		
+		return {'value': {'pricegravad':pricegravad,'discountmax':product_obj.discount*100,'price_unit': price,'product_uom':uom,'price': price2,'price_show':price2,'product_id':product_tmp[0],'name':name,'color':color,'tax_id':tax},'domain':domain}		
         context = context or {}
         lang = lang or context.get('lang', False)
         if not partner_id:
@@ -482,10 +536,7 @@ class sap_order_line(osv.osv):
             precio=0
             for tarifa in obj_tarifa:
 	        for version in tarifa.version_id:
-		    #print version.product_id.id
                     if version.product_id.id == idproduct:
-			print "#"*50
-		        #print (version.product_id.id)
 			precio = version.price;
 	    		
         context = context or {}
@@ -600,12 +651,15 @@ class sap_order_line(osv.osv):
     _columns = {
 		'codebar_id': fields.many2one('product.codebars',string="Codebars"),
 		'price': fields.float(string="Precio Unitario",digits_compute=dp.get_precision('Product Price')),
+		'price_show':fields.function(_get_priceU,type='float', string='Price',digits_compute=dp.get_precision('Product Price')),
 		'color': fields.boolean(string="color"),
 		'name':fields.function(_get_name,type='char', string='name'),
 		'discountmax':fields.function(_get_maxdiscount,type='float', string='Max Discount'),
 		'pricegravad':fields.function(_get_pricegravad,type='float', string='Precio Gravado Neto'),
 		'comment':fields.text(string="Comentario"),
 		'max':fields.integer(string="discount MAX"),
+		'category_id':fields.function(_get_id,type='integer', string='category_id'),
+		
 		}
     _defaults = {
 	'color' : False,
@@ -613,10 +667,62 @@ class sap_order_line(osv.osv):
 class sap_password(osv.osv):
     _name="sap_integration.password"
     _columns = {
+		'discount':fields.float("Discount",required=True),
 		'user':fields.char("Usuario"),
-		'pass':fields.char("password"),
+		'passw':fields.char("password"),
+		'order_id':fields.many2one("sale.order"),
+		}
+    def create(self, cr, uid, values, context=None):
+	obj_sale=self.pool.get('sale.order').browse(cr,uid,context['active_id'],context=context)
+	obj_partner=self.pool.get('res.partner').browse(cr,uid,obj_sale.partner_id.id,context=context)
+	if values['discount']>obj_partner.discount:
+	    values['discount']=obj_partner.discount
+	values['order_id']= context['active_id']
+	b=0
+	val2 = val =0.0
+	#self.pool.get('sale.order').write(cr,uid,context['active_id'],{'disc':values['discount']},context=context)
+	if(values['user']):
+	    cr.execute('SELECT password, password_crypt FROM res_users WHERE login=%s AND active', (values['user'],))
+	    if cr.rowcount:
+                stored, encrypted = cr.fetchone()
+	        valid_pass, replacement = self._crypt_context(cr, uid, uid).verify_and_update(values['passw'], encrypted)
+	        if valid_pass:
+		    b =super(sap_password, self).create(cr, uid, values, context=context)
+		    obj_line=self.pool.get('sale.order.line')
+		    line_ids=obj_line.search(cr,uid,[('order_id','=',values['order_id'])],context=context)
+		    for line in obj_line.browse(cr,uid,line_ids,context=context):
+			"""if values['discount']<line.discountmax:
+			    obj_line.write(cr,uid,line.id,{'max':values['discount']},context=context)
+			else:
+			    obj_line.write(cr,uid,line.id,{'max':line.discountmax},context=context)
+			"""
+			val2 += line.price_subtotal*line.max/100
+			for tax in line.tax_id:
+			    val += (line.price_subtotal-line.price_subtotal*line.max/100)*tax.amount
+		    self.pool.get('sale.order').write(cr,uid,context['active_id'],{'amount_tax':val},context=context)
+		    self.pool.get('sale.order').write(cr,uid,context['active_id'],{'amount_discount':val2},context=context)
+		    return b	
+	raise osv.except_osv(_('Password Incorret!'), _('Write the Correct Password'))
+    def _crypt_context(self, cr, uid, id, context=None):
+        """ Passlib CryptContext instance used to encrypt and verify
+        passwords. Can be overridden if technical, legal or political matters
+        require different kdfs than the provided default.
 
-		}
+        Requires a CryptContext as deprecation and upgrade notices are used
+        internally
+        """
+        return default_crypt_context
+
+    def action_vality(self, cr, uid, ids, context=None):
+	id = ids[0]
+	obj_pass=self.browse(cr,uid,id,context=context)
+
+	values['user']=obj_pass.user
+	values['passw']=obj_pass.passw
+	values['discount']=obj_pass.discount
+        return {'value': {'disc':1}}
+
+
 class sap_stores(osv.osv):
     _name="sap_integration.stores"
     _columns = {
@@ -631,19 +737,15 @@ class sap_stores(osv.osv):
 		'fax':fields.char("Fax"),
 		'email':fields.char("Email"),
 		}
-class sap_stores(osv.osv):
-    _name="sap_integration.stores"
+class sap_stock(osv.osv):
+    _name="sap.integration.stock"
     _columns = {
-		'code':fields.char("Code"),
-		'name':fields.char("name"),
+		'product_id':fields.many2one('product.template',string="product ID"),
 		'warehouse_id':fields.many2one('stock.warehouse',string="Warehouse id"),
-		'sequence_id' :fields.many2one('ir.sequence',strins="Sq"),
-		'address':fields.char("Address"),
-		'print_headr':fields.char("Print Header"),
-		'phone1':fields.char("Phone 1"),
-		'phone2':fields.char("Phone 2"),
-		'fax':fields.char("Fax"),
-		'email':fields.char("Email"),
+		'on_hand':fields.float("On Hand"),
+		'is_commited':fields.float("Is Commited"),
+		'on_order':fields.float("On Order"),
+		'sap_id':fields.integer(string="sap_id"),
 		}
 class sap_order(osv.osv):
     _inherit = 'res.users'
