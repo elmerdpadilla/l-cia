@@ -161,11 +161,11 @@ class schedule(models.Model):
 			self.toOdoo('account.payment.term', row.GroupNum, search, data, cursor, 'OCTG', 'GroupNum', row.GroupNum)
 			cnxc.commit()
 		cnxc.close()
-		self.Log('obj', 'Conexión cerrada')
+		self.Log(obj, 'Conexión cerrada')
 
 	#######################################################################CustomerCategories###########################################################3		
-	def CustomerCategories(cnxn):
-		obj = 'PaymentMethod'
+	def CustomerCategories(self,uid, *args):
+		obj = 'CustomerCategories'
 		cnxc = self.connectOrigin(obj)
 		if not cnxc:
 			self.Log('error','No hay conexión al origen, revise la configuración')
@@ -180,9 +180,8 @@ class schedule(models.Model):
 			self.toOdoo('res.partner.category', row.GroupCode, search, data, cursor, 'OCRG', 'GroupCode', row.GroupCode)
 			cnxc.commit()
 		cnxc.close()
-		self.Log('obj', 'Conexión cerrada')
+		self.Log(obj, 'Conexión cerrada')
 
-			
 	#######################################################################Customers###########################################################3
 	def customers(self,uid, *args):
 		obj = 'Customers'
@@ -201,7 +200,7 @@ class schedule(models.Model):
 			self.toOdoo ('res.partner', row.CardCode, search, data, cursor, 'OCRD', 'CardCode', row.CardCode)
 			cnxc.commit()
 		cnxc.close()
-		self.Log('obj', 'Conexión cerrada')
+		self.Log(obj, 'Conexión cerrada')
 	#######################################################################3ProductMaker###########################################################3
 	def ProductMaker(self,uid, *args):
 		obj = 'Product Makers'
@@ -220,7 +219,7 @@ class schedule(models.Model):
 			self.toOdoo ('sap_integration.product.maker', row.FirmCode, search, data, cursor, 'OMRC', 'FirmCode', row.FirmCode)
 			cnxc.commit()
 		cnxc.close()
-		self.Log('obj', 'Conexión cerrada')
+		self.Log(obj, 'Conexión cerrada')
 
 	#######################################################################ProductUoMCategory###########################################################3
 
@@ -242,7 +241,7 @@ class schedule(models.Model):
 			self.toOdoo ('product.uom.categ', row.id, search, data, cursor, 'odoo_uomCategory', 'id', row.id)
 			cnxc.commit()
 		cnxc.close()
-		self.Log('obj', 'Conexión cerrada')
+		self.Log(obj, 'Conexión cerrada')
 	#######################################################################ProductUoM###########################################################3
 	def ProductUoM(self,uid, *args):
 		obj = 'ProductUoMCategory'
@@ -262,7 +261,7 @@ class schedule(models.Model):
 			self.toOdoo ('product.uom', row.id, search, data, cursor, 'odoo_uom', 'id', row.id)
 			cnxc.commit()
 		cnxc.close()
-		self.Log('obj', 'Conexión cerrada')
+		self.Log(obj, 'Conexión cerrada')
 
 
 	#######################################################################Items###########################################################3
@@ -299,7 +298,7 @@ class schedule(models.Model):
 			self.toOdoo ('product.codebars', row.ItemCode, search, data, cursor, 'OBCD', 'BcdEntry', 0)
 			cnxc.commit()	
 		cnxc.close()
-		self.Log('obj', 'Conexión cerrada')
+		self.Log(bj, 'Conexión cerrada')
 
 	#######################################################################PriceList###########################################################3
 	def PriceList(self,uid, *args):
@@ -321,7 +320,7 @@ class schedule(models.Model):
 			self.toOdoo ('product.pricelist', row.ListNum, search, data, cursor, 'OPLN', 'ListNum', row.ListNum)
 			cnxc.commit()
 		cnxc.close()
-		self.Log('obj', 'Conexión cerrada')
+		self.Log(obj, 'Conexión cerrada')
 
 	#######################################################################PriceListVersion###########################################################3
 	def PriceListVersion(self,uid, *args):
@@ -343,7 +342,7 @@ class schedule(models.Model):
 			self.toOdoo ('product.pricelist.version', row.sap_id, search, data, cursor, 'ITM1', 'sap_id', row.sap_id)
 			cnxc.commit()
 		cnxc.close()
-		self.Log('obj', 'Conexión cerrada')
+		self.Log(obj, 'Conexión cerrada')
 
 	#######################################################################PriceListDiscounts###########################################################3
 	def PriceListDiscounts(self,uid, *args):
@@ -365,7 +364,7 @@ class schedule(models.Model):
 			self.toOdoo ('product.pricelist.discount', row.sap_id, search, data, cursor, 'SPP2', 'sap_id', row.sap_id)
 			cnxc.commit()
 		cnxc.close()
-		self.Log('obj', 'Conexión cerrada')
+		self.Log(obj, 'Conexión cerrada')
 
 	#######################################################################Items###########################################################3
 	def BarCode(self,uid, *args):
@@ -387,7 +386,7 @@ class schedule(models.Model):
 			self.toOdoo ('product.codebars', row.BcdEntry, search, data, cursor, 'OBCD', 'BcdEntry', row.BcdEntry)
 			cnxc.commit()
 		cnxc.close()
-		self.Log('obj', 'Conexión cerrada')
+		self.Log(obj, 'Conexión cerrada')
 	#######################################################################Items###########################################################3
 
 	#######################################################################Items###########################################################3
