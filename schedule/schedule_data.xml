@@ -143,5 +143,6 @@
       <field eval="'schedule.tasks'" name="model"/>
       <field eval="'PaymentMethod'" name="function"/>
       <field eval="'()'" name="args"/>
+    </record>
   </data>
 </openerp>
