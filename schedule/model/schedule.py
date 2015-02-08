@@ -221,6 +221,25 @@ class schedule(models.Model):
 		cnxc.close()
 		self.Log(obj, 'Conexión cerrada')
 
+	#######################################################################3ProductMaker###########################################################3
+	def ProductCategory(self,uid, *args):
+		obj = 'ProductCategory'
+		cnxc = self.connectOrigin(obj)
+		if not cnxc:
+			self.Log('error','No hay conexión al origen, revise la configuración')
+			return
+		cursor = cnxc.cursor()
+		cursor.execute('exec getProductCategory')
+		rows = cursor.fetchall()
+	
+		for row in rows: ##ItmsGrpCod, ItmsGrpNam 
+			search = [('sap_id', '=', row.ItmsGrpCod)]
+			data = {'sap_id': row.ItmsGrpCod, 'name': row.ItmsGrpNam,  }
+		
+			self.toOdoo ('product.category', row.ItmsGrpCod, search, data, cursor, 'OITB', 'ItmsGrpCod', row.ItmsGrpCod)
+			cnxc.commit()
+		cnxc.close()
+		self.Log(obj, 'Conexión cerrada')
 	#######################################################################ProductUoMCategory###########################################################3
 
 	def ProductUoMCategory(self,uid, *args):
