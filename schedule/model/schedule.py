@@ -117,7 +117,7 @@ class schedule(models.Model):
 			self.Log('Registro actualizado en el orígen', '')
 
 		else:	# Registro existente
-			self.Log('Actualizando' + toObj,data)
+			self.Log('Actualizando ' + toObj,data)
 			odooId = self.call(url, "object", "execute", DB, uid, PASS, toObj, 'write', x, data)
 			result = 'update'	
 			cursor.execute("update %s set odoo_id = %s where %s = '%s'" % (tableOrig, x[0], keyOrig, valueKeyRef)) 
@@ -162,8 +162,26 @@ class schedule(models.Model):
 			cnxc.commit()
 		cnxc.close()
 		self.Log('obj', 'Conexión cerrada')
-			
-		
+
+	#######################################################################CustomerCategories###########################################################3		
+	def CustomerCategories(cnxn):
+		obj = 'PaymentMethod'
+		cnxc = self.connectOrigin(obj)
+		if not cnxc:
+			self.Log('error','No hay conexión al origen, revise la configuración')
+			return
+		cursor = cnxn.cursor()
+		cursor.execute('exec getCustomerCategories')
+		rows = cursor.fetchall()
+		self.Log(obj, 'Cargando registros')
+		for row in rows:
+			search =  [('sap_id', '=', row.GroupCode)]
+			data = args = {'sap_id': row.GroupCode, 'name': row.GroupName, }
+			self.toOdoo('res.partner.category', row.GroupCode, search, data, cursor, 'OCRG', 'GroupCode', row.GroupCode)
+			cnxc.commit()
+		cnxc.close()
+		self.Log('obj', 'Conexión cerrada')
+
 	#######################################################################Customers###########################################################3
 	def customers(self,uid, *args):
 		obj = 'Customers'
