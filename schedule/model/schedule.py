@@ -97,46 +97,7 @@ class schedule(models.Model):
 		args = {'log': message, 'description': description, }
 		self.call(url, "object", "execute", DB, uid, PASS, 'sap_integration.log', 'create', args)
 
-	######################################################################
-	#############Payment Method 
-	######################################################################
-	def PaymentMethod(self,uid, *args):
-		self.Log('Buscando metodos de pago', '')
-		obj = 'PaymentMethod'
-		cn = self.connectOrigin(obj)
-		if not cn:
-			self.Log('error','No hay conexión al origen, revise la configuración')
-			return
-		cursor = cn.cursor()
-		cursor.execute('exec getPaymentMethod ')
-		rows = cursor.fetchall()
 	
-		for row in rows:
-			#
-			self.Log('Procesando metodo %s' % row.PymntGroup, '')
-			args = [('sap_id', '=', row.GroupNum)]
-			x = self.call(url, "object", "execute", DB, uid, PASS, 'account.payment.term', 'search', args)
-			self.Log('Odoo Id', x)
-
-			args = {'sap_id': row.GroupNum, 'name': row.PymntGroup, 'note': row.PymntGroup, }
-			if x == []: # Nuevo regisro
-				Log('Creando registro en Odoo',args)
-				odooId = self.call(url, "object", "execute", DB, uid, PASS, 'account.payment.term', 'create', args)
-				cursor.execute('update OCTG set odoo_id = %s where GroupNum = %s' % (odooId, row.GroupNum)) 
-				cn.commit()
-				Log(obj, 'Registro actualizado en el orígen')
-			
-			else:		# Registro existente
-				Log('Actualizando registro en Odoo',args)
-				odooId = self.call(url, "object", "execute", DB, uid, PASS, 'account.payment.term', 'write', x, args)	
-				cursor.execute('update OCTG set odoo_id = %s where GroupNum = %s' % (x[0], row.GroupNum)) 
-				cn.commit()
-				Log(obj, 'Registro actualizado en el orígen')
-			
-		
-
-		cn.close()
-		self.Log('obj', 'Conexión cerrada')
 
 
 	#Base for importation
@@ -163,7 +124,7 @@ class schedule(models.Model):
 			self.Log('Registro actualizado en el orígen', '')
 			odooId =x[0]
 		return odooId
-	
+	#######################################################################Series###########################################################3
 	def Series(self,uid, *args):
 		obj = 'Series'
 		cnxc = self.connectOrigin(obj)
@@ -183,7 +144,27 @@ class schedule(models.Model):
 		cnxc.close()
 		self.Log(obj, 'Conexión cerrada')
 
-
+	#######################################################################PaymentMethod###########################################################3
+	def PaymentMethod(self,uid, *args):
+		obj = 'PaymentMethod'
+		cnxc = self.connectOrigin(obj)
+		if not cnxc:
+			self.Log('error','No hay conexión al origen, revise la configuración')
+			return
+		cursor = cnxc.cursor()
+		cursor.execute('exec getPaymentMethod ')
+		rows = cursor.fetchall()
+		self.Log(obj, 'Cargando registros')
+		for row in rows:
+			search =  [('sap_id', '=', row.GroupNum)]
+			data = 	{'sap_id': row.GroupNum, 'name': row.PymntGroup, 'note': row.PymntGroup, }
+			self.toOdoo('account.payment.term', row.GroupNum, search, data, cursor, 'OCTG', 'GroupNum', row.GroupNum)
+			cnxc.commit()
+		cnxc.close()
+		self.Log('obj', 'Conexión cerrada')
+			
+		
+	#######################################################################Customers###########################################################3
 	def customers(self,uid, *args):
 		obj = 'Customers'
 		cnxc = self.connectOrigin(obj)

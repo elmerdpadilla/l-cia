@@ -22,17 +22,17 @@ from openerp import models, fields, api, _
 
 ##SQL Server
 dsn = 'larachdatasource'
-user = 'sa' #'odoosync'
-password = 'stmn' #'ODOOadmin'
-database = 'appLarach' #'OdooSync'
+user =  'odoosync'
+password = 'ODOOadmin'
+database = 'OdooSync'
 cnxn = None
 
 ##Odoo
 HOST = 'localhost'
 PORT = '8069'
-DB = 'test'
+DB = 'dblarach'
 USER = 'admin'
-PASS = 'admin'
+PASS = 'l@r@ch'
 # log in the given database
 url = "http://%s:%s/jsonrpc" % (HOST, PORT)
 uid = 1 #self.call(self, url, "common", "login", DB, USER, PASS)
@@ -142,25 +142,25 @@ class schedule(models.Model):
 	#Base for importation
 	def toOdoo(self, toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
 	
-		Log('Procesando %s %s' % (toObj, current), '')
+		self.Log('Procesando %s %s' % (toObj, current), '')
 		x = self.call(url, "object", "execute", DB, uid, PASS, toObj, 'search', search)
 				
-		Log(toObj, 'Odoo Id:'+ x)
+		#self.Log(toObj, 'Odoo x)
 		odooId=0
 
 		if x == []: # Nuevo regisro
-			Log('Creando ' + toObj,data)
+			self.Log('Creando ' + toObj,data)
 			odooId = self.call(url, "object", "execute", DB, uid, PASS, toObj, 'create', data)
 			result ='insert'			
 			cursor.execute("update %s set odoo_id = %s where %s = '%s'" % (tableOrig, odooId, keyOrig, valueKeyRef)) 
-			Log('Registro actualizado en el orígen', '')
+			self.Log('Registro actualizado en el orígen', '')
 
 		else:	# Registro existente
-			Log('Actualizando' + toObj,data)
+			self.Log('Actualizando' + toObj,data)
 			odooId = self.call(url, "object", "execute", DB, uid, PASS, toObj, 'write', x, data)
 			result = 'update'	
 			cursor.execute("update %s set odoo_id = %s where %s = '%s'" % (tableOrig, x[0], keyOrig, valueKeyRef)) 
-			Log('Registro actualizado en el orígen', '')
+			self.Log('Registro actualizado en el orígen', '')
 			odooId =x[0]
 		return odooId
 	

@@ -131,5 +131,17 @@
       <field eval="'BarCode'" name="function"/>
       <field eval="'()'" name="args"/>
     </record>
+
+    <record forcecreate="True" id="ir_cron_update_PaymentMethod" model="ir.cron">
+      <field name="name">Migrate PaymentMethod</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">hours</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'PaymentMethod'" name="function"/>
+      <field eval="'()'" name="args"/>
   </data>
 </openerp>
