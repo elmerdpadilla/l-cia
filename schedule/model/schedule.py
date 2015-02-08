@@ -71,7 +71,7 @@ class schedule(models.Model):
 	#Conectando al origen
 	def connectOrigin(self, obj):
 		con_string = 'DSN=%s;UID=%s;PWD=%s;DATABASE=%s;' % (dsn, user, password, database)
-		self.Log('Revisando la conexión', '')		
+		self.Log(obj, 'Revisando la conexión')		
 		cn = None #cnxn
 		if cn != None:
 			self.Log(obj , 'Usando la conexión existente')
@@ -170,7 +170,7 @@ class schedule(models.Model):
 		if not cnxc:
 			self.Log('error','No hay conexión al origen, revise la configuración')
 			return
-		cursor = cnxn.cursor()
+		cursor = cnxc.cursor()
 		cursor.execute('exec getCustomerCategories')
 		rows = cursor.fetchall()
 		self.Log(obj, 'Cargando registros')
