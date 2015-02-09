@@ -355,7 +355,7 @@ class schedule(models.Model):
 		for row in rows: # a.sap_id, a.ItemCode name,  b.odoo_id ListNumOdoo, d.odoo_id as ItemCodeOdoo, a.Price, a.Currency, a.Factor, isnull(c.LINENUM,0) LINENUM, c.FromDate, c.ToDate
 			search = [('sap_id', '=', row.sap_id)]
 		
-			data = {'sap_id': row.sap_id, 'name': row.name, 'pricelist_id': row.ListNumOdoo, 'product_id': row.ItemCodeOdoo, 'price': float(row.Price), 'currency_id': row.Currency, 'factor': float(row.Factor), 'line_num': row.LINENUM, 'date_start': row.FromDate, 'date_end': row.ToDate }
+			data = {'sap_id': row.sap_id, 'name': row.name, 'pricelist_id': row.ListNumOdoo, 'product_id': row.ItemCodeOdoo, 'price': float(row.Price), 'currency_id': row.Currency, 'Factor': float(row.Factor), 'line_num': row.LINENUM, 'date_start': row.FromDate, 'date_end': row.ToDate }
 		
 			#toOdoo(toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
 			self.toOdoo ('product.pricelist.version', row.sap_id, search, data, cursor, 'ITM1', 'sap_id', row.sap_id)
@@ -427,28 +427,8 @@ class schedule(models.Model):
 			cnxc.commit()
 		cnxc.close()
 		self.Log(obj, 'Conexión cerrada')
-	#######################################################################Warehouses###########################################################3
-	def Warehouses(self,uid, *args):
-		obj = 'Warehouses'
-		cnxc = self.connectOrigin(obj)
-		if not cnxc:
-			self.Log('error','No hay conexión al origen, revise la configuración')
-			return
-		cursor = cnxc.cursor()
-		cursor.execute('exec getWarehouses')
-		rows = cursor.fetchall()
-	
-		for row in rows: #
-			search =  [('code', '=', row.WhsCode)]
-		
-			data = {'code': row.WhsCode, 'name': row.WhsName, }
-		
-			#toOdoo(toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
-			self.toOdoo ('stock.warehouse', row.WhsCode, search, data, cursor, 'OWHS', 'WhsCode', row.WhsCode)
-			cnxc.commit()
-		cnxc.close()
-		self.Log(obj, 'Conexión cerrada')
-	#######################################################################Items###########################################################3
+
+	#######################################################################Stock###########################################################3
 	def Stock(self,uid, *args):
 		obj = 'Stock'
 		cnxc = self.connectOrigin(obj)
