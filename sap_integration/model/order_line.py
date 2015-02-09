@@ -250,6 +250,7 @@ class sap_order(osv.osv):
 		'disc2':fields.function(_get_disc,type='float',string='Discount',digits_compute=dp.get_precision('Account')),
 		'name_show':fields.char(string="name"),
 		'is_visible':fields.function(_get_isvisible,type='boolean',string="Visible"),
+		
 		}
     _defaults = {
 	'disc' : 0.0,
@@ -264,6 +265,18 @@ class sap_order_line(osv.osv):
         result = {}
 	for line in self.browse(cr,uid,ids,context=context):
 	    result[line.id]=line.price
+	return result
+    def _get_itemcode(self, cr, uid, ids, field, arg, context=None):
+        result = {}
+	for line in self.browse(cr,uid,ids,context=context):
+	    result[line.id]=line.product_id.item_code
+	return result
+    def _get_nm(self, cr, uid, ids, field, arg, context=None):
+        result = {}
+	val=1
+	for line in self.browse(cr,uid,ids,context=context):
+	    result[line.id]=val
+	    val+=1
 	return result
     def _get_id(self, cr, uid, ids, field, arg, context=None):
         result = {}
@@ -658,11 +671,17 @@ class sap_order_line(osv.osv):
 		'pricegravad':fields.function(_get_pricegravad,type='float', string='Precio Gravado Neto'),
 		'comment':fields.text(string="Comentario"),
 		'max':fields.integer(string="discount MAX"),
+		'item_code':fields.function(_get_itemcode,type='char', string='Code'),
 		'category_id':fields.function(_get_id,type='integer', string='category_id'),
+		'nm':fields.function(_get_nm,type='integer', string='#'),
+		'cr':fields.integer(string="cr",type='integer'),
+		'aditional_ids':fields.related('product_id ','on_hand',type='one2many',relation='periodical.aditional_fields',string="campos adicionales",store=False)
+
 		
 		}
     _defaults = {
 	'color' : False,
+	'cr' : 0,
 		}
 class sap_password(osv.osv):
     _name="sap_integration.password"

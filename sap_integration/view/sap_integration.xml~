@@ -337,7 +337,7 @@ domain=" [('category_id', '=', category_id)]"
                                         <group>
                                             <field name="tax_id" widget="many2many_tags" domain="[('parent_id','=',False),('type_tax_use','&lt;&gt;','purchase')]"/>
 <field name="price" readonly="0" invisible="1"/>
-<field name="price_show" />
+<field name="price_show" string="Precio Unitario"/>
 						<field name="discountmax"/>
 						<field name="pricegravad"/>
                                         </group>

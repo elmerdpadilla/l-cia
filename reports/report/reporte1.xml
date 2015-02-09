@@ -149,7 +149,7 @@ table.ba{
     margin-top:0px;
     margin-bottom:1px;
 }
-table.ba tr {
+table.ba tr.qt {
 
 	width: 100%;
   border-color: #B2B2B2;
@@ -233,6 +233,9 @@ td.center{
 <td style="width:13%" class="right"><span t-field="a.price_unit"/></td>
 <td style="width:10%" class="center" ><span t-field="a.tax_id.description"/></td>
 <td style="width:10%" class="right"><span t-field="a.price_subtotal"/></td>
+</tr>
+<tr class="qt">
+<td colspan="7"><span t-field="a.comment"/></td>
 </tr>
 </t>
 
