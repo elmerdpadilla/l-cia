@@ -103,7 +103,7 @@ class schedule(models.Model):
 	#Base for importation
 	def toOdoo(self, toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
 	
-		self.Log('Procesando %s %s' % (toObj, current), '')
+		self.Log(toObj, 'Procesando %s %s' % (toObj, current))
 		x = self.call(url, "object", "execute", DB, uid, PASS, toObj, 'search', search)
 				
 		#self.Log(toObj, 'Odoo x)
@@ -114,14 +114,14 @@ class schedule(models.Model):
 			odooId = self.call(url, "object", "execute", DB, uid, PASS, toObj, 'create', data)
 			result ='insert'			
 			cursor.execute("update %s set odoo_id = %s where %s = '%s'" % (tableOrig, odooId, keyOrig, valueKeyRef)) 
-			self.Log('Registro actualizado en el orígen', '')
+			self.Log(toObj, 'Registro actualizado en el orígen')
 
 		else:	# Registro existente
 			self.Log('Actualizando ' + toObj,data)
 			odooId = self.call(url, "object", "execute", DB, uid, PASS, toObj, 'write', x, data)
 			result = 'update'	
 			cursor.execute("update %s set odoo_id = %s where %s = '%s'" % (tableOrig, x[0], keyOrig, valueKeyRef)) 
-			self.Log('Registro actualizado en el orígen', '')
+			self.Log(toObj, 'Registro actualizado en el orígen')
 			odooId =x[0]
 		return odooId
 	#######################################################################Series###########################################################3
@@ -406,8 +406,70 @@ class schedule(models.Model):
 			cnxc.commit()
 		cnxc.close()
 		self.Log(obj, 'Conexión cerrada')
+	#######################################################################Warehouses###########################################################3
+	def Warehouses(self,uid, *args):
+		obj = 'Warehouses'
+		cnxc = self.connectOrigin(obj)
+		if not cnxc:
+			self.Log('error','No hay conexión al origen, revise la configuración')
+			return
+		cursor = cnxc.cursor()
+		cursor.execute('exec getWarehouses')
+		rows = cursor.fetchall()
+	
+		for row in rows: #
+			search =  [('code', '=', row.WhsCode)]
+		
+			data = {'code': row.WhsCode, 'name': row.WhsName, }
+		
+			#toOdoo(toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
+			self.toOdoo ('stock.warehouse', row.WhsCode, search, data, cursor, 'OWHS', 'WhsCode', row.WhsCode)
+			cnxc.commit()
+		cnxc.close()
+		self.Log(obj, 'Conexión cerrada')
+	#######################################################################Warehouses###########################################################3
+	def Warehouses(self,uid, *args):
+		obj = 'Warehouses'
+		cnxc = self.connectOrigin(obj)
+		if not cnxc:
+			self.Log('error','No hay conexión al origen, revise la configuración')
+			return
+		cursor = cnxc.cursor()
+		cursor.execute('exec getWarehouses')
+		rows = cursor.fetchall()
+	
+		for row in rows: #
+			search =  [('code', '=', row.WhsCode)]
+		
+			data = {'code': row.WhsCode, 'name': row.WhsName, }
+		
+			#toOdoo(toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
+			self.toOdoo ('stock.warehouse', row.WhsCode, search, data, cursor, 'OWHS', 'WhsCode', row.WhsCode)
+			cnxc.commit()
+		cnxc.close()
+		self.Log(obj, 'Conexión cerrada')
 	#######################################################################Items###########################################################3
+	def Stock(self,uid, *args):
+		obj = 'Stock'
+		cnxc = self.connectOrigin(obj)
+		if not cnxc:
+			self.Log('error','No hay conexión al origen, revise la configuración')
+			return
+		cursor = cnxc.cursor()
+		cursor.execute('exec getStock')
+		rows = cursor.fetchall()
+	
+		for row in rows: #
+			search =  [('sap_id', '=', row.sap_id)]
+		
+			data = {'product_id': row.product_id, 'warehouse_id': row.whs_id, 'on_hand': float(row.OnHand), 'is_commited':float(row.IsCommited) , 'on_order': float(row.OnOrder) , 'sap_id':row.sap_id, }
+		
+			#toOdoo(toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
+			self.toOdoo ('sap.integration.stock', row.sap_id, search, data, cursor, 'OITW', 'sap_id', row.sap_id)
+			cnxc.commit()
+		cnxc.close()
+		self.Log(obj, 'Conexión cerrada')
 
-	#######################################################################Items###########################################################3
-	#######################################################################Items###########################################################3
-
+	##############################3
+	#pendiente tiendas
+	

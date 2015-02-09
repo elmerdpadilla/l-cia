@@ -170,5 +170,32 @@
       <field eval="'ProductCategory'" name="function"/>
       <field eval="'()'" name="args"/>
     </record>
+
+
+    <record forcecreate="True" id="ir_cron_update_Warehouses" model="ir.cron">
+      <field name="name">Migrate Warehouses</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">hours</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'Warehouses'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+
+    <record forcecreate="True" id="ir_cron_update_Stock" model="ir.cron">
+      <field name="name">Migrate Stock</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">minutes</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'Stock'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
   </data>
 </openerp>
