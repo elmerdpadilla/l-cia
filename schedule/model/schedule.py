@@ -378,7 +378,7 @@ class schedule(models.Model):
 			search = [('sap_id', '=', row.sap_id)]
 		
 			data = {'sap_id': row.sap_id, 'pricelist_version_id': row.ListVersionOdoo, 'sequence': row.SPP2LNum, 'amount': float(row.Amount), 'discount': float(row.Discount) }
-		
+			print data
 			#toOdoo(toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
 			self.toOdoo ('product.pricelist.discount', row.sap_id, search, data, cursor, 'SPP2', 'sap_id', row.sap_id)
 			cnxc.commit()
