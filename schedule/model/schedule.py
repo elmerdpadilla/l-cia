@@ -102,7 +102,7 @@ class schedule(models.Model):
 
 	#Base for importation
 	def toOdoo(self, toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
-	
+		print toObj, current
 		self.Log(toObj, 'Procesando %s %s' % (toObj, current))
 		x = self.call(url, "object", "execute", DB, uid, PASS, toObj, 'search', search)
 				
@@ -376,9 +376,7 @@ class schedule(models.Model):
 	
 		for row in rows: # sap_id, ListVersionOdoo, SPP2LNum, Amount, Discount
 			search = [('sap_id', '=', row.sap_id)]
-			print row
 			data = {'sap_id': row.sap_id, 'pricelist_version_id': row.ListVersionOdoo, 'sequence': row.SPP2LNum, 'amount': float(row.Amount), 'discount': float(row.Discount) }
-			print data
 			#toOdoo(toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
 			self.toOdoo ('product.pricelist.discount', row.sap_id, search, data, cursor, 'SPP2', 'sap_id', row.sap_id)
 			cnxc.commit()
