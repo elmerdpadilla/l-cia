@@ -745,7 +745,7 @@ class sap_stock(osv.osv):
 		'on_hand':fields.float("On Hand"),
 		'is_commited':fields.float("Is Commited"),
 		'on_order':fields.float("On Order"),
-		'sap_id':fields.integer(string="sap_id"),
+		'sap_id':fields.char(string="sap_id"),
 		}
 class sap_order(osv.osv):
     _inherit = 'res.users'
