@@ -142,7 +142,6 @@ class sap_order(osv.osv):
 	    #res[order.id]['amount_total'] = 88
         return res
     def button_dummy(self, cr, uid, ids, context=None):
-	print "!"*50
 	for order in self.browse(cr,uid,ids,context=context):
 	    tax=0.0
 	    for line in order.order_line:
@@ -299,8 +298,6 @@ class sap_order_line(osv.osv):
 	    imp=line.price
 	    for tax in line.tax_id:
 		imp+=line.price*tax.amount
-	    print "#"*50
-	    print imp
 	    result[line.id]=imp
 	return result
     def product_uom_change(self, cursor, user, ids, pricelist, codebar_id, qty=0,
@@ -342,11 +339,9 @@ class sap_order_line(osv.osv):
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False, packaging=False, fiscal_position=False, flag=False, context=None):
 	obj_codebars=self.pool.get('product.codebars').browse(cr,uid,barcode,context=context)
-	
+	print "#"*50
 	    #return {'value': {'product_id': obj_codebars.item_id.id,}}
 	flag=True
-	print "!"*50
-	print uom
 	ratio =1
         if not uom:
 	    uom=obj_codebars.uom_id.id
@@ -355,7 +350,6 @@ class sap_order_line(osv.osv):
 	else:
 	
 	    obj_uom=self.pool.get('product.uom').browse(cr,uid,uom,context=context)
-	    print ratio
 	    ratio =obj_uom.factor
 	product=0
         domain = {}
@@ -393,14 +387,18 @@ class sap_order_line(osv.osv):
                 fpos = self.pool.get('account.fiscal.position').browse(cr, uid, fiscal_position)
 	    if True: #The quantity only have changed
                 tax= self.pool.get('account.fiscal.position').map_tax(cr, uid, fpos, product_obj.taxes_id)
-            for tarifa in obj_tarifa:
-	        for version in tarifa.version_id:
+	    print len(obj_tarifa)
+	    obj_ve=self.pool.get('product.pricelist.version')
+	    for tarifa in obj_tarifa:
+	        version_ids=obj_ve.search(cr,uid,[('product_id','=',product),('pricelist_id','=',tarifa.id)],context=context)
+	        for version in obj_ve.browse(cr,uid,version_ids,context=context):
                     if version.product_id.id == product:
 			price = version.price;
 
 			for sequence in version.product_pricelist_discount_ids:
 			    arraysequence.append([sequence.amount,sequence.discount])
 			inc=1
+		
 			if len(arraysequence)>0:
 			    tam = len(arraysequence)
 			    for inc in range(1,tam,inc*3+1):
@@ -419,8 +417,10 @@ class sap_order_line(osv.osv):
 				    color=True
 				    break
 			    price-=price*discount/100
+		
 		        price2=price
 	                price*=ratio
+	    print "!"*50
 	    pricegravad=price2
 	    if ids:
 		self.pool.get('sale.order.line').write(cr,uid,ids[0],{'price':price2},context=context)
@@ -675,7 +675,6 @@ class sap_order_line(osv.osv):
 		'category_id':fields.function(_get_id,type='integer', string='category_id'),
 		'nm':fields.function(_get_nm,type='integer', string='#'),
 		'cr':fields.integer(string="cr",type='integer'),
-		'aditional_ids':fields.related('product_id ','on_hand',type='one2many',relation='periodical.aditional_fields',string="campos adicionales",store=False)
 
 		
 		}
