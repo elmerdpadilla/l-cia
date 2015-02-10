@@ -376,7 +376,7 @@ class schedule(models.Model):
 	
 		for row in rows: # sap_id, ListVersionOdoo, SPP2LNum, Amount, Discount
 			search = [('sap_id', '=', row.sap_id)]
-		
+			print row
 			data = {'sap_id': row.sap_id, 'pricelist_version_id': row.ListVersionOdoo, 'sequence': row.SPP2LNum, 'amount': float(row.Amount), 'discount': float(row.Discount) }
 			print data
 			#toOdoo(toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
