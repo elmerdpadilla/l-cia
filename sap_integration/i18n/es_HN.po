@@ -172,7 +172,7 @@ msgstr "Descuento"
 #. module: sap_integration
 #: field:sale.order,efective_discount:0
 msgid "Discount efective"
-msgstr "Descuento eectivo"
+msgstr "Descuento efectivo"
 
 #. module: sap_integration
 #: field:product.pricelist.version,product_pricelist_discount_ids:0
