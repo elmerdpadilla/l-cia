@@ -1,0 +1,5 @@
+('08S01', '[08S01] [unixODBC][FreeTDS][SQL Server]Unable to connect: Adaptive Server is unavailable or does not exist (20009) (SQLDriverConnect)')
+('08S01', '[08S01] [unixODBC][FreeTDS][SQL Server]Unable to connect: Adaptive Server is unavailable or does not exist (20009) (SQLDriverConnect)')
+('08S01', '[08S01] [unixODBC][FreeTDS][SQL Server]Unable to connect: Adaptive Server is unavailable or does not exist (20009) (SQLDriverConnect)')
+('42000', '[42000] [unixODBC][FreeTDS][SQL Server]Cannot open database "appLarach" requested by the login. The login failed. (4060) (SQLDriverConnect)')
+('42000', '[42000] [unixODBC][FreeTDS][SQL Server]Cannot open database "appLarach" requested by the login. The login failed. (4060) (SQLDriverConnect)')
