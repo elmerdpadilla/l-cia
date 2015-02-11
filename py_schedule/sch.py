@@ -21,7 +21,7 @@ logging.config.fileConfig('config/logging.cfg') #logfile config
 
 ##SQL Server
 dsn = 'larachdatasource'
-user = 'odoosync'
+user =  'odoosync'
 password = 'ODOOadmin'
 database = 'OdooSync'
 
@@ -49,9 +49,9 @@ def call(url, service, method, *args):
 ##Odoo
 HOST = 'localhost'
 PORT = '8069'
-DB = 'larach'
+DB = 'dblarach'
 USER = 'admin'
-PASS = 'l@r@ch'
+PASS = 'l@r@ch21'
 # log in the given database
 url = "http://%s:%s/jsonrpc" % (HOST, PORT)
 uid = call(url, "common", "login", DB, USER, PASS)
@@ -329,7 +329,8 @@ def PriceListVersion(cnxc):
 		search = [('sap_id', '=', row.sap_id)]
 		
 		data = {'sap_id': row.sap_id, 'name': row.name, 'pricelist_id': row.ListNumOdoo, 'product_id': row.ItemCodeOdoo, 'price': float(row.Price), 'currency_id': row.Currency, 'factor': float(row.Factor), 'line_num': row.LINENUM, 'date_start': row.FromDate, 'date_end': row.ToDate }
-		
+		print '/*'*30
+		print data
 		#toOdoo(toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
 		toOdoo ('product.pricelist.version', row.sap_id, search, data, cursor, 'ITM1', 'sap_id', row.sap_id)
 		cnxc.commit()
@@ -358,7 +359,8 @@ def BarCode(cnxc):
 		search = [('sap_id', '=', row.BcdEntry)]
 		
 		data = {'sap_id': row.BcdEntry, 'item_id': row.ItemsId, 'bar_code': row.BcdCode, 'description': row.BcdName, 'uom_id': row.uom_id, 'item_code': row.ItemCode, }
-		
+		print '/*'*35
+		print data
 		#toOdoo(toObj, current, search, data, cursor, tableOrig, keyOrig, valueKeyRef):
 		toOdoo ('product.codebars', row.BcdEntry, search, data, cursor, 'OBCD', 'BcdEntry', row.BcdEntry)
 		cnxc.commit()
@@ -446,21 +448,21 @@ def SearchNewData():
 		Log('Conectado al orígen', '')
 		Series(cnxn)
 		#########ProcesaVendedores(cnxn)
-		CustomerCategories(cnxn)
-		PaymentMethod(cnxn)
+		#CustomerCategories(cnxn)
+		#PaymentMethod(cnxn)
 		###Customers(cnxn) #using the next
-		cust(cnxn)		
-		Warehouses(cnxn)
+		#cust(cnxn)		
+		#Warehouses(cnxn)
 		
 		###		
 		#ProductCategory(cnxn)
 		#ProductMaker(cnxn)
 		#ProductUoMCategory(cnxn)
 		#ProductUoM(cnxn)
-		Items(cnxn)
+		#Items(cnxn)
 		#PriceList(cnxn)
-		#PriceListVersion(cnxn)
-		#PriceListDiscounts(cnxn)
+		PriceListVersion(cnxn)
+		PriceListDiscounts(cnxn)
 
 		BarCode(cnxn)
 
