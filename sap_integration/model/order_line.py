@@ -783,6 +783,7 @@ class sap_stores(osv.osv):
 		'fax':fields.char("Fax"),
 		'email':fields.char("Email"),
 		'users_ids' :fields.one2many('res.users','store_id',string="Users"),
+		'partner_id':fields.many2one('res.partner',string="Warehouse id",domain=[('customer','=',True)]),
 		}
 class sap_stock(osv.osv):
     _name="sap.integration.stock"

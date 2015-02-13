@@ -457,14 +457,7 @@ class sap_order_line(osv.osv):
 	    print "!"*50
 	    mtax=""
 	    pricegravad=price2
-	    if ids:
-		self.pool.get('sale.order.line').write(cr,uid,ids[0],{'price':price2},context=context)
-		sale_line=self.pool.get('sale.order.line').browse(cr,uid,ids[0],context=context)
-		for tax in sale_line.tax_id:
-		    pricegravad+=pricegravad*tax.amount
-	            #mtax+=tax.description
-		
-		    
+	    		    
 	    for product in product_obj:
 		print product.name
 		for tax in product.taxes_id:
@@ -790,6 +783,7 @@ class sap_stores(osv.osv):
 		'fax':fields.char("Fax"),
 		'email':fields.char("Email"),
 		'users_ids' :fields.one2many('res.users','store_id',string="Users"),
+		'partner_id':fields.many2one('res.partner',string="Warehouse id",domain=[('customer','=',True)]),
 		}
 class sap_stock(osv.osv):
     _name="sap.integration.stock"

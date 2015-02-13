@@ -14,16 +14,28 @@
     <t t-if="o and 'company_id' in o">
         <t t-set="company" t-value="o.company_id"></t>
     </t>
+    <t t-if="o and 'user_id' in o">
+        <t t-set="user" t-value="o.user_id"></t>
+
+    </t>
     <t t-if="not o or not 'company_id' in o">
         <t t-set="company" t-value="res_company"></t>
     </t>
 <div class="footer">
 
+        <div class="text-center" style="border-top: 1px solid black;">
+                <ul class="list-inline">
+                <li>Page:</li>
+                <li><span class="page"/></li>
+                <li>/</li>
+                <li><span class="topage"/></li>
+            </ul>
+        </div>
+  
 <style>
 div.box {
      text-align: center;
 }
-
 </style>
 <div class="box">
 <span t-field="company.rml_header1" />
@@ -55,7 +67,7 @@ table.box td{
 <td colspan="3">
 <br/>
 <strong>
-<span t-field="company.name"/>  <span t-field="o.warehouse_id.name"/>
+<span t-field="company.name"/>  <span t-field="user.store_id.name"/>
 </strong>
 </td>
 <td rowspan="4" style="width:30%" >
@@ -64,14 +76,30 @@ table.box td{
                 <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % company.logo" style="height: 80px;"/>
             </div>
         </div>
-Tel.<span t-field="company.phone"/> Fax.<span t-field="company.fax"/>
+<t  t-if="user.store_id.phone1">
+Tel.<span t-field="user.store_id.phone1"/>
+</t>
+<t  t-if="user.store_id.phone2">
+Tel.<span t-field="user.store_id.phone2"/>
+</t>
+<t  t-if="user.store_id.fax">
+Fax.<span t-field="user.store_id.fax"/>
+</t>
+
 </td>
 </tr>
 
 <tr >
 <td colspan="3">
 
-<span t-field="company.city"/> <span t-field="company.state_id.name"/>  <span t-field="company.state_id.name"/> RTN: <span t-field="company.company_registry"/>
+
+<t  t-if="user.store_id.address">
+<span t-field="user.store_id.address"/>
+</t>
+    <t t-if="company.company_registry">
+    RTN: <span t-field="company.company_registry"/>  
+    </t>
+
 </td>
 </tr>
 <tr >
@@ -231,7 +259,7 @@ td.center{
 <td style="width:10%"><span t-field="a.product_uom_qty"/></td>
 <td style="width:7%"><span t-field="a.product_uom"/></td>
 <td style="width:13%" class="right"><span t-field="a.price_unit"/></td>
-<td style="width:10%" class="center" ><span t-field="a.tax_id.description"/></td>
+<td style="width:10%" class="center" ><span t-field="a.mtax"/></td>
 <td style="width:10%" class="right"><span t-field="a.price_subtotal"/></td>
 </tr>
 <tr class="qt">
@@ -249,11 +277,20 @@ td.center{
     <td style="width:5%"></td>
     <td class="right" style="width:10%"><span t-field="o.amount_untaxed"/></td>
   </tr>
-  <tr>
+    <t t-if="o.amount_discount>0">
+   <tr>
     <td class="right">Descuento</td>
     <td></td>
   <td class="right"><span t-field="o.amount_discount"/></td>
   </tr>
+    </t>
+ <t t-if="o.amount_discount==0">
+   <tr>
+    <td class="right"></td>
+    <td></td>
+  <td class="right"></td>
+  </tr>
+</t>
   <tr>
     <td class="right">Impuesto Sobre Ventas:</td>
     <td></td>

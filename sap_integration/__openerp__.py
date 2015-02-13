@@ -10,7 +10,9 @@
 		'view/sap_integration.xml',
 	],
 	'update_xml' : [
+			'security/groups.xml',
+			'security/ir.model.access.csv',
 	],
-	'depends': ['base','hr','account','sale'],
+	'depends': ['base','hr','account','sale','stock'],
     	'installable': True,
 }

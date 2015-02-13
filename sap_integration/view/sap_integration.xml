@@ -101,7 +101,7 @@
 
 <menuitem id="setting_menu" name="Setting Sap" parent="base.menu_base_partner" />
 <menuitem action="sap_integration_action_form_log2" parent="setting_menu"  id="log_edit"/>
-<menuitem action="sap_integration_action_form_stores" parent="setting_menu"  id="stores_edit"/>
+
 <record model="ir.ui.view" id="view_sap_integration_partner_form">
     <field name="name">sap.integration.res.partner.form</field>
     <field name="model">res.partner</field>
@@ -196,13 +196,14 @@
     <field name="name">sap.integration.product_pricelist.only_form_view</field>
     <field name="model">product.pricelist</field>
     <field name="inherit_id" ref="product.product_pricelist_view"/>
+<field name="limit">10</field>
     <field name="arch" type="xml">
 <field name="currency_id" position="replace">
 <field name="currency_id" invisible="True" groups="base.group_multi_currency"/>
 </field>
 <field name="version_id" position="replace">
 <field name="version_id" >
-                        <tree string="Pricelist Version">
+                        <tree string="Pricelist Version" limit="5">
                             <field name="name"/>
                             <field name="active"/>
                             <field name="date_start"/>
@@ -439,7 +440,7 @@ filter_domain="['|',('item_code','ilike',self),('bar_code','ilike',self)]" invis
 		<group colspan="4">
 		    <group colspan="1">
 			<field name= "name" />
-			<field name="address"/>
+			<field name="email"/>
 			<field name="warehouse_id"/>
 			<field name= "sequence_id" string="Sequence" />
 		    </group>
@@ -450,8 +451,9 @@ filter_domain="['|',('item_code','ilike',self),('bar_code','ilike',self)]" invis
 			<field name= "fax" />
 		    </group>
 		    <group colspan="2">
-			<field name="email"/>
+			
 			<field name= "address" />
+<field name= "partner_id" />
 		    </group>
 		</group>
 		<field name="users_ids" readonly="1" options='{"no_create": True}'/>
@@ -474,7 +476,7 @@ filter_domain="['|',('item_code','ilike',self),('bar_code','ilike',self)]" invis
             </notebook>
         </field>
     </record>
-
+<menuitem action="sap_integration_action_form_stores" parent="setting_menu"  id="stores_edit"/>
 
     </data>
 </openerp>
