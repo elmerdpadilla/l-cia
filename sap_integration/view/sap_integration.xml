@@ -305,7 +305,7 @@
                                     </header>
   <label for="codebar_id" string="Producto"/>
  <field name="codebar_id" options='{"no_open": True,"no_create": True}'
-context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom}" groups="base.group_user" on_change="barcode_id_change(parent.pricelist_id, codebar_id, product_uom_qty, False, product_uos_qty, False, name, parent.partner_id, False, True, parent.date_order, False, parent.fiscal_position, False, context)"
+context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom}" groups="base.group_user" on_change="barcode_id_change(parent.pricelist_id, codebar_id, product_uom_qty, False, product_uos_qty, False, name, parent.partner_id,parent.disc, False, True, parent.date_order, False, parent.fiscal_position, False, context)"
 filter_domain="['|',('item_code','ilike',self),('bar_code','ilike',self)]"
 />
 <notebook>
@@ -322,7 +322,7 @@ filter_domain="['|',('ean13','ilike',self),('default_code','ilike',self)]" invis
 />
                                             <label for="product_uom_qty"/>
                                             <div>
-                                                <field context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom}" name="product_uom_qty" class="oe_inline" on_change="barcode_id_change(parent.pricelist_id, codebar_id, product_uom_qty, False, product_uos_qty, False, name, parent.partner_id, False, True, parent.date_order, False, parent.fiscal_position, False, context)"/>
+                                                <field context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom}" name="product_uom_qty" class="oe_inline" on_change="barcode_id_change(parent.pricelist_id, codebar_id, product_uom_qty, False, product_uos_qty, False, name, parent.partner_id,parent.disc ,False, True, parent.date_order, False, parent.fiscal_position, False, context)"/>
                                               
 <field name="category_id" invisible="1"/>
   <field name="product_uom" groups="product.group_uom" class="oe_inline oe_no_button" options='{"no_open": True,"no_create": True}'
@@ -351,6 +351,7 @@ domain=" [('category_id', '=', category_id)]"
 <field name="price_show" string="Precio Unitario"/>
 						<field name="discountmax"/>
 						<field name="pricegravad"/>
+<field name="max" invisible="1" on_change="disc_sap_change(max,parent.pricelist_id, codebar_id, product_uom_qty, False, product_uos_qty, False, name, parent.partner_id, False, True, parent.date_order, False, parent.fiscal_position, False, context)"/>
                                         </group>
                                     </group>
                                     <label for="name"/>
@@ -361,7 +362,7 @@ domain=" [('category_id', '=', category_id)]"
 
 </page>
 <page string="Inventario">
-
+<button name="action_view" type="object" string="Ver Inventario" />
 </page>
 </notebook>
 <field name="comment" placeholder="Comentarios"/>
@@ -419,6 +420,24 @@ filter_domain="['|',('item_code','ilike',self),('bar_code','ilike',self)]" invis
     </field>
 </record>
 
+<record id="sap_integration_action_form_stock" model="ir.actions.act_window">
+    <field name="name">Stock</field>
+    <field name="res_model">sap.integration.stock</field>
+    <field name="view_type">form</field>
+    <field name="view_mode">tree,form</field>
+    <field name="domain">[]</field>
+    <field name="context">{}</field>
+    <field name="view_id" eval="False"/>            
+    <field name="help" type="html">
+	<p class="oe_view_nocontent_create">
+	    Click to add a new Stock.
+	</p>
+	<p>
+	    With just a quick glance on the OpenERP Stock screen, you
+	    can easily find all the information about your each day Stock;					
+	</p>
+    </field>
+</record>
 <record id="sap_integration_stores_tree_view" model="ir.ui.view">
             <field name="name">sap.integration.stores.tree</field>
             <field name="model">sap_integration.stores</field>
@@ -461,6 +480,53 @@ filter_domain="['|',('item_code','ilike',self),('bar_code','ilike',self)]" invis
 	</form>
     </field>
 </record>
+<record id="sap_integration_stores_form_view" model="ir.ui.view">
+    <field name="name">sap.integration.stock.form</field>
+    <field name="model">sap.integration.stock</field>
+    <field name="arch" type="xml">
+	<form>
+	    <sheet>
+		<group colspan="4">
+		    <group colspan="1">
+			<field name= "warehouse_id" />
+			<field name="product_id"/>
+			<field name="on_hand"/>
+			<field name= "is_commited"  />
+			<field name="on_order"/>
+		    </group>
+		</group>
+	    </sheet>
+	</form>
+    </field>
+</record>
+<record id="sap_integration_stores_tree_view" model="ir.ui.view">
+    <field name="name">sap.integration.stock.tree</field>
+    <field name="model">sap.integration.stock</field>
+    <field name="arch" type="xml">
+	<tree>
+			<field name= "warehouse_id" />
+
+			<field name="on_hand"/>
+			<field name= "is_commited"  />
+			<field name="on_order"/>
+	</tree>
+    </field>
+</record>
+
+        <record model="ir.ui.view" id="res_partner_kanban_view">
+            <field name="name">res.partner.kanban</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.res_partner_kanban_view"/>
+            <field name="arch" type="xml">
+                <field name="color" position="after">
+                    <field name="sap_id"/>
+                </field>
+                <ul position="inside">
+<li t-if="record.sap_id.raw_value and !record.function.raw_value"><field name="sap_id"/></li>
+                </ul>
+            </field>
+        </record>
+
 
     <record id="res_users_form_view" model="ir.ui.view">
         <field name="name">res.users.form.view</field>
@@ -477,6 +543,7 @@ filter_domain="['|',('item_code','ilike',self),('bar_code','ilike',self)]" invis
         </field>
     </record>
 <menuitem action="sap_integration_action_form_stores" parent="setting_menu"  id="stores_edit"/>
+<menuitem action="sap_integration_action_form_stock" parent="setting_menu"  id="stock_edit"/>
 
     </data>
 </openerp>

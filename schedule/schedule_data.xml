@@ -197,5 +197,19 @@
       <field eval="'Stock'" name="function"/>
       <field eval="'()'" name="args"/>
     </record>
+
+    <record forcecreate="True" id="ir_cron_update_Stores" model="ir.cron">
+      <field name="name">Migrate Stores</field>
+      <field eval="True" name="active"/>
+      <field name="user_id" ref="base.user_root"/>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field eval="False" name="doall"/>
+      <field eval="'schedule.tasks'" name="model"/>
+      <field eval="'Stores'" name="function"/>
+      <field eval="'()'" name="args"/>
+    </record>
+
   </data>
 </openerp>

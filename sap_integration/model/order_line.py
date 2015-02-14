@@ -26,15 +26,12 @@ class sap_order(osv.osv):
 	name = "/"
 	order_obj = self.pool.get('account.journal')
 	diario =self.pool.get('res.users').browse(cr,uid,uid,context=context).store_id
-	print diario.sequence_id
 	if diario.sequence_id:
 	    if not diario.sequence_id.active:
 		raise osv.except_osv(_('Configuration Error !'),_('Please activate the sequence of selected time !'))
 	    c = dict(context)
 	    name = seq_obj.next_by_id(cr, uid, diario.sequence_id.id, context=c)
 	values['name']=name
-	print name
-	print 
 	b =super(sap_order, self).create(cr, uid, values, context=context)	
 	return b
 
@@ -58,6 +55,7 @@ class sap_order(osv.osv):
             'user_id': dedicated_salesman,
 	    'name_show' :part.name,
 	    'is_visible' : part.change_name,
+	    'disc':part.discount,
         }
         delivery_onchange = self.onchange_delivery_id(cr, uid, ids, False, part.id, addr['delivery'], False,  context=context)
         val.update(delivery_onchange['value'])
@@ -158,8 +156,8 @@ class sap_order(osv.osv):
             res[order.id]['amount_tax'] = cur_obj.round(cr, uid, cur, val)
             res[order.id]['amount_untaxed'] = cur_obj.round(cr, uid, cur, val1)
 	    res[order.id]['amount_discount'] = cur_obj.round(cr, uid, cur, val2)
-            res[order.id]['amount_total'] = res[order.id]['amount_untaxed'] + res[order.id]['amount_tax']-val2
-	    #res[order.id]['amount_total'] = 88
+	    val3= val1+val-val2
+            res[order.id]['amount_total'] = cur_obj.round(cr, uid, cur, val3) 
         return res
     def button_dummy(self, cr, uid, ids, context=None):
 	for order in self.browse(cr,uid,ids,context=context):
@@ -172,8 +170,8 @@ class sap_order(osv.osv):
 		self.pool.get('sale.order.line').write(cr,uid,line.id,{'max':final},context=context)
 	        for taxes in line.tax_id:
 		    tax+= (line.price_subtotal-line.price_subtotal*final/100 )*taxes.amount
-		self.pool.get('sale.order').write(cr,uid,order.id,{'amount_tax':tax},context=context)
-        return {'value': {'client_order_ref': 'hola'},}
+		#self.pool.get('sale.order').write(cr,uid,order.id,{'amount_tax':tax},context=context)
+        return {'value': {'tienda':"as",'client_order_ref': 0.5},}
     def discount_sap_change(self, cr, uid, ids,discount,order_lines, partner_id=False , context=None):
 	obj_line=self.pool.get('product.product')
 	order_line=[]
@@ -190,10 +188,9 @@ class sap_order(osv.osv):
 	    sap=self.pool.get('sap_integration.password').search(cr,uid,[('order_id', '=', id )],context=context)
 	    if len(sap)>0:
 		obj_pass=self.pool.get('sap_integration.password').browse(cr,uid,sap[len(sap)-1],context=context)
-		if disc>obj_pass.discount:
+
+		if disc<obj_pass.discount:
 		    disc=obj_pass.discount
-	    else:
-		disc=0
         for line in order_lines:
             if line[0] in [4, 6]:
                 line_ids = line[0] == 4 and [line[1]] or line[2]
@@ -208,7 +205,6 @@ class sap_order(osv.osv):
                         order_line.append([4, line_id])
             else:
                 order_line.append(line)
-
 	return	{'value': {'disc': disc,'order_line':order_line},}
     def _get_dated(self, cr, uid, ids, field, arg, context=None):
         result = {}
@@ -288,6 +284,22 @@ class sap_order(osv.osv):
 
 class sap_order_line(osv.osv):
     _inherit = 'sale.order.line'
+    def action_view(self, cr, uid, ids, context=None):
+	id=0
+	for line in self.browse(cr,uid,ids,context=context):
+	    print line.product_id.id
+	    product_obj=self.pool.get('product.product').browse(cr,uid,line.product_id.id,context=context)
+	    id= product_obj.product_tmpl_id.id
+	    print id
+	return {
+	    'domain': "[('product_id','=', " + str(id) + ")]",
+            'type': 'ir.actions.act_window',
+	'name': 'Inventory',
+             'view_type': 'form',
+             'view_mode': 'tree',
+            'res_model': 'sap.integration.stock',
+            'target': 'new',
+        }
     def _get_priceU(self, cr, uid, ids, field, arg, context=None):
         result = {}
 	for line in self.browse(cr,uid,ids,context=context):
@@ -371,10 +383,9 @@ class sap_order_line(osv.osv):
         return {'value': {'max': price},}
 
     def barcode_id_change(self, cr, uid, ids, pricelist, barcode, qty=0,
-            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
+            uom=False, qty_uos=0, uos=False, name='', partner_id=False, discpartner=False ,
             lang=False, update_tax=True, date_order=False, packaging=False, fiscal_position=False, flag=False, context=None):
 	obj_codebars=self.pool.get('product.codebars').browse(cr,uid,barcode,context=context)
-	print "#"*50
 	    #return {'value': {'product_id': obj_codebars.item_id.id,}}
 	flag=True
 	ratio =1
@@ -389,10 +400,6 @@ class sap_order_line(osv.osv):
 	product=0
         domain = {}
 	product=obj_codebars.item_id.id
-	
-	
-	
-	
 	domain = {'product_uom':
                         [('category_id', '=', obj_codebars.uom_id.category_id.id)],}
 	name=obj_codebars.description
@@ -402,11 +409,13 @@ class sap_order_line(osv.osv):
 	discount=0
 	price =0
 	price2=0
+	discp=0
 	color=False
 	arraysequence=[]
 	if pricelist and barcode:
 	    partner_obj = self.pool.get('res.partner')
 	    partner = partner_obj.browse(cr, uid, partner_id)
+	    discp=partner.discount
 	    lang = partner.lang
 	    context_partner = {'lang': lang, 'partner_id': partner_id}
 	    product_tmp=self.pool.get('product.product').search(cr,uid,[('product_tmpl_id','=',product)],context=context)
@@ -422,7 +431,6 @@ class sap_order_line(osv.osv):
                 fpos = self.pool.get('account.fiscal.position').browse(cr, uid, fiscal_position)
 	    if True: #The quantity only have changed
                 tax= self.pool.get('account.fiscal.position').map_tax(cr, uid, fpos, product_obj.taxes_id)
-	    print len(obj_tarifa)
 	    obj_ve=self.pool.get('product.pricelist.version')
 	    for tarifa in obj_tarifa:
 	        version_ids=obj_ve.search(cr,uid,[('product_id','=',product),('pricelist_id','=',tarifa.id)],context=context)
@@ -453,22 +461,17 @@ class sap_order_line(osv.osv):
 				    break
 			    price-=price*discount/100
 		        price2=price
-	                price*=ratio
-	    print "!"*50
 	    mtax=""
 	    pricegravad=price2
 	    		    
 	    for product in product_obj:
-		print product.name
 		for tax in product.taxes_id:
 		    mtax+=tax.description
 		    pricegravad+=pricegravad*tax.amount
-	    print mtax
-	    print "&"*50
 	    if flag:
-	        return {'value': {'pricegravad':pricegravad,'discountmax':product_obj.discount,'price_unit': price,'price': price2,'price_show':price2,'product_id':product_tmp[0],'name':name,'color':color,'tax_id':tax,'mtax':mtax},'domain':domain,}
+	        return {'value': {'max':product_obj.discount,'pricegravad':pricegravad,'discountmax':product_obj.discount,'price_unit': price,'price': price2,'price_show':price2,'product_id':product_tmp[0],'name':name,'color':color,'tax_id':tax,'mtax':mtax},'domain':domain,}
 	    else:
-		return {'value': {'pricegravad':pricegravad,'discountmax':product_obj.discount,'price_unit': price,'product_uom':uom,'price': price2,'price_show':price2,'product_id':product_tmp[0],'name':name,'color':color,'tax_id':tax,'mtax':mtax},'domain':domain}		
+		return {'value': {'max':product_obj.discount,'pricegravad':pricegravad,'discountmax':product_obj.discount,'price_unit': price,'product_uom':uom,'price': price2,'price_show':price2,'product_id':product_tmp[0],'name':name,'color':color,'tax_id':tax,'mtax':mtax},'domain':domain}		
         context = context or {}
         lang = lang or context.get('lang', False)
         if not partner_id:
@@ -586,9 +589,6 @@ class sap_order_line(osv.osv):
             precio=0
 	    obj_ve=self.pool.get('product.pricelist.version')
 	    version_ids=obj_ve.search(cr,uid,[('product_id','=',idproduct),('pricelist_id','=',pricelist)],context=context)
-	    print "#"*50
-	    print version_ids
-
 	    for version in obj_ve.browse(cr,uid,version_ids,context=context):
                 if version.product_id.id == idproduct:
 		    precio = version.price;
@@ -675,8 +675,6 @@ class sap_order_line(osv.osv):
         if not uom2:
             uom2 = product_obj.uom_id
         # get unit price
-	
-	print "#"*50
         if warning_msgs:
             warning = {
                        'title': _('Configuration Error!'),
@@ -685,7 +683,19 @@ class sap_order_line(osv.osv):
 
         return {'value': result, 'domain': domain, 'warning': warning}
 
-
+    def _amount_line(self, cr, uid, ids, field_name, arg, context=None):
+        tax_obj = self.pool.get('account.tax')
+        cur_obj = self.pool.get('res.currency')
+        res = {}
+        if context is None:
+            context = {}
+        for line in self.browse(cr, uid, ids, context=context):
+            price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
+            taxes = tax_obj.compute_all(cr, uid, line.tax_id, price, line.product_uom_qty, line.product_id, line.order_id.partner_id)
+            cur = line.order_id.pricelist_id.currency_id
+	    res[line.id]=price
+            #res[line.id] = cur_obj.round(cr, uid, cur, taxes['total'])
+        return res
 
     _columns = {
 		'codebar_id': fields.many2one('product.codebars',string="Codebars"),
@@ -702,7 +712,8 @@ class sap_order_line(osv.osv):
 		'nm':fields.function(_get_nm,type='integer', string='#'),
 		'cr':fields.integer(string="cr",type='integer'),
 		'mtax':fields.function(_get_mtax,type='char', string='Impuestos'),
-	
+		'price_subtotal': fields.function(_amount_line, string='Subtotal', digits_compute= dp.get_precision('Product Price')),
+		'stock_ids':fields.related('codebar_id',type='one2many',relation='sap.integration.stock',string="campos adicionales",store=False)
 		
 		}
     _defaults = {
@@ -721,8 +732,6 @@ class sap_password(osv.osv):
     def create(self, cr, uid, values, context=None):
 	obj_sale=self.pool.get('sale.order').browse(cr,uid,context['active_id'],context=context)
 	obj_partner=self.pool.get('res.partner').browse(cr,uid,obj_sale.partner_id.id,context=context)
-	if values['discount']>obj_partner.discount:
-	    values['discount']=obj_partner.discount
 	values['order_id']= context['active_id']
 	b=0
 	val2 = val =0.0
@@ -762,7 +771,6 @@ class sap_password(osv.osv):
     def action_vality(self, cr, uid, ids, context=None):
 	id = ids[0]
 	obj_pass=self.browse(cr,uid,id,context=context)
-
 	values['user']=obj_pass.user
 	values['passw']=obj_pass.passw
 	values['discount']=obj_pass.discount
@@ -783,7 +791,7 @@ class sap_stores(osv.osv):
 		'fax':fields.char("Fax"),
 		'email':fields.char("Email"),
 		'users_ids' :fields.one2many('res.users','store_id',string="Users"),
-		'partner_id':fields.many2one('res.partner',string="Warehouse id",domain=[('customer','=',True)]),
+		'partner_id':fields.many2one('res.partner',string="Cliente Contado",domain=[('customer','=',True)]),
 		}
 class sap_stock(osv.osv):
     _name="sap.integration.stock"

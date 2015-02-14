@@ -32,7 +32,7 @@ HOST = 'localhost'
 PORT = '8069'
 DB = 'dblarach'
 USER = 'admin'
-PASS = 'l@r@ch'
+PASS = 'l@r@ch21'
 # log in the given database
 url = "http://%s:%s/jsonrpc" % (HOST, PORT)
 uid = 1 #self.call(self, url, "common", "login", DB, USER, PASS)
@@ -124,6 +124,27 @@ class schedule(models.Model):
 			self.Log(toObj, 'Registro actualizado en el orígen')
 			odooId =x[0]
 		return odooId
+	
+	#######################################################################Stores###########################################################3
+	def Stores(self,uid, *args):
+		obj = 'Stores'
+		cnxc = self.connectOrigin(obj)
+		if not cnxc:
+			self.Log('error','No hay conexión al origen, revise la configuración')
+			return
+		cursor = cnxc.cursor()
+		cursor.execute('exec getStores')
+		rows = cursor.fetchall()
+		self.Log(obj, 'Cargando registros')
+		for row in rows: # FirmCode, FirmName
+			search = [('code', '=', row.Code)]
+			data = {'code': row.Code, 'name': row.Name, 'warehouse_id': row.WhsId, 'address': row.Address, 'print_headr': row.PrintHeadr, 'phone1': row.Phone1, 'phone2':row.Phone2, 'fax': row.Fax, 'email': row.E_Mail, }
+		
+			self.toOdoo ('sap_integration.stores', row.Code, search, data, cursor, 'OUDG', 'Code', row.Code)
+			cnxc.commit()
+		cnxc.close()
+		self.Log(obj, 'Conexión cerrada')
+	
 	#######################################################################Series###########################################################3
 	def Series(self,uid, *args):
 		obj = 'Series'
